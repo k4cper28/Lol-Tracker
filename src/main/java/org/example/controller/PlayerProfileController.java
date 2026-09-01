@@ -1,9 +1,11 @@
 package org.example.controller;
 
+import org.example.model.LeagueEntry;
 import org.example.model.PlayerProfile;
 import org.example.service.PlayerProfileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/players")
@@ -23,4 +25,39 @@ public class PlayerProfileController {
         PlayerProfile profile = playerProfileService.getPlayerProfile(gameName, tagLine);
         return ResponseEntity.ok(profile);
     }
+
+    // Endpoint: GET /api/players/{gameName}/{tagLine}/puuid
+    @GetMapping("/{gameName}/{tagLine}/puuid")
+    public ResponseEntity<String> getPuuid(
+            @PathVariable String gameName,
+            @PathVariable String tagLine) {
+            String puuid =playerProfileService.getPuuidFromDatabase(gameName, tagLine);
+            return ResponseEntity.ok(puuid);
+    }
+
+    // Endpoint: GET /api/players/{gameName}/{tagLine}/{queue}
+    @GetMapping("/{gameName}/{tagLine}/{queue}")
+    public ResponseEntity<LeagueEntry> getQueueRank(
+            @PathVariable String gameName,
+            @PathVariable String tagLine,
+            @PathVariable String queue
+    ){
+        String queueKey = switch (queue.toLowerCase()) {
+            case "solo", "soloduo", "ranked_solo_5x5" -> "RANKED_SOLO_5x5";
+            case "flex", "ranked_flex_sr" -> "RANKED_FLEX_SR";
+            default -> queue.toUpperCase();
+        };
+
+        PlayerProfile profile = playerProfileService.getPlayerProfile(gameName, tagLine);
+
+        if (profile.ranks() == null || !profile.ranks().containsKey(queueKey)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        LeagueEntry rankEntry = profile.ranks().get(queueKey);
+
+        return ResponseEntity.ok(rankEntry);
+    }
+
+
 }

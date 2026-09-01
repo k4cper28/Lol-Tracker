@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Document(collection = "players")
 public record PlayerProfile(
@@ -17,5 +18,6 @@ public record PlayerProfile(
     int summonerLevel,
     int profileIcon,
     String iconUrl,
+    Map<String,LeagueEntry> ranks,
     LocalDateTime updatedAt
     ){}

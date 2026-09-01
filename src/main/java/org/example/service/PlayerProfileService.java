@@ -1,10 +1,13 @@
 package org.example.service;
 
+import org.example.model.LeagueEntry;
 import org.example.model.PlayerProfile;
 import org.example.dto.RiotDtos.AccountDto;
 import org.example.dto.RiotDtos.SummonerDto;
+import org.example.dto.RiotDtos.LeagueEntryDto;
 import org.example.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriUtils;
@@ -12,6 +15,10 @@ import org.springframework.web.util.UriUtils;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PlayerProfileService {
@@ -88,6 +95,33 @@ public class PlayerProfileService {
         String iconUrl = String.format("https://ddragon.leagueoflegends.com/cdn/%s/img/profileicon/%d.png",
                 ddragonVersion, summoner.profileIconId());
 
+        // Pobranie danych z Riot LEAGUE-V4
+        List<LeagueEntryDto> leagueEntries = restClient.get()
+                .uri("https://{platform}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}",
+                        defaultPlatform, account.puuid())
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<LeagueEntryDto>>() {});
+
+        // Mapowanie na Map<String, LeagueEntry>
+        Map<String, LeagueEntry> ranksMap = (leagueEntries == null || leagueEntries.isEmpty())
+                ? Collections.emptyMap()
+                : leagueEntries.stream()
+                .collect(Collectors.toMap(
+                        LeagueEntryDto::queueType,
+                        dto -> new LeagueEntry(
+                                dto.queueType(),
+                                dto.tier(),
+                                dto.rank(),
+                                dto.leaguePoints(),
+                                dto.wins(),
+                                dto.losses(),
+                                dto.veteran(),
+                                dto.inactive(),
+                                dto.freshBlood(),
+                                dto.hotStreak()
+                        )
+                ));
+
         // KROK D: Stwórz obiekt domenowy
         PlayerProfile profileToSave = new PlayerProfile(
                 account.puuid(),
@@ -96,10 +130,18 @@ public class PlayerProfileService {
                 summoner.summonerLevel(),
                 summoner.profileIconId(),
                 iconUrl,
+                ranksMap,
                 LocalDateTime.now()
         );
 
         // KROK E: Zapisz/Zaktualizuj w MongoDB i zwróć
         return playerRepository.save(profileToSave);
+    }
+
+    public String getPuuidFromDatabase(String gameName, String tagLine){
+        return playerRepository.findByGameNameIgnoreCaseAndTagLineIgnoreCase(gameName, tagLine)
+                .map(PlayerProfile::puuid)
+                .orElseThrow(() -> new RuntimeException("Gracz " + gameName + "#" + tagLine + " nie istnieje w bazie danych"));
+
     }
 }
