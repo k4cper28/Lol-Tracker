@@ -6,6 +6,8 @@ import org.example.service.PlayerProfileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/players")
@@ -28,11 +30,11 @@ public class PlayerProfileController {
 
     // Endpoint: GET /api/players/{gameName}/{tagLine}/puuid
     @GetMapping("/{gameName}/{tagLine}/puuid")
-    public ResponseEntity<String> getPuuid(
+    public ResponseEntity<Map<String, String>> getPuuid(
             @PathVariable String gameName,
             @PathVariable String tagLine) {
             String puuid =playerProfileService.getPuuidFromDatabase(gameName, tagLine);
-            return ResponseEntity.ok(puuid);
+            return ResponseEntity.ok(Map.of("puuid", puuid));
     }
 
     // Endpoint: GET /api/players/{gameName}/{tagLine}/{queue}
@@ -53,10 +55,17 @@ public class PlayerProfileController {
         if (profile.ranks() == null || !profile.ranks().containsKey(queueKey)) {
             return ResponseEntity.notFound().build();
         }
-
         LeagueEntry rankEntry = profile.ranks().get(queueKey);
-
         return ResponseEntity.ok(rankEntry);
+    }
+    // Endpoint: GET /api/players/{gameName}/{tagLine}/icon
+    @GetMapping("/{gameName}/{tagLine}/icon")
+    public ResponseEntity<Map<String, String>> getIcon(
+        @PathVariable String gameName,
+        @PathVariable String tagLine
+            ){
+        String iconUrl =playerProfileService.getIconFromDatabase(gameName, tagLine);
+        return ResponseEntity.ok(Map.of("iconUrl", iconUrl));
     }
 
 

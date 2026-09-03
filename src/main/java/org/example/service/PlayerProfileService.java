@@ -144,4 +144,11 @@ public class PlayerProfileService {
                 .orElseThrow(() -> new RuntimeException("Gracz " + gameName + "#" + tagLine + " nie istnieje w bazie danych"));
 
     }
+
+    public String getIconFromDatabase(String gameName, String tagLine){
+        return playerRepository.findByGameNameIgnoreCaseAndTagLineIgnoreCase(gameName,tagLine)
+                .map(PlayerProfile::iconUrl)
+                .orElseThrow(() -> new RuntimeException("Gracz " + gameName + "#" + tagLine + " nie istnieje w bazie danych"));
+    }
+
 }
