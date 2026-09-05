@@ -4,6 +4,7 @@ package org.example.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.management.relation.RelationNotification;
 import java.util.List;
 
 @Document(collection = "matchSummary")
@@ -49,8 +50,19 @@ public record MatchSummary(
         int getDmg,
         boolean firstBlood,
         boolean firstTower,
-        boolean win
+        boolean win,
+        PlayerRunes perks
     )
     {}
+
+    public record PlayerRunes(
+            int primaryStyleId,
+            int subStyleId,
+            List<Integer> primaryPerks,
+            List<Integer> subPerks,
+            List<Integer> startPerks
+    ){
+
+    }
 
 }

@@ -73,6 +73,8 @@ public class MatchAnalyticsConsumer {
 
                 int cs = getInt(p, "totalMinionsKilled") + getInt(p, "neutralMinionsKilled");
 
+                MatchSummary.PlayerRunes playerRunes = extractRunes(p);
+
                 MatchSummary.ParticipantStats stats = new MatchSummary.ParticipantStats(
                         getString(p, "puuid"),
                         getString(p, "riotIdGameName"),
@@ -104,7 +106,8 @@ public class MatchAnalyticsConsumer {
                         getInt(p, "totalDamageTaken"),
                         getBoolean(p, "firstBloodKill"),
                         getBoolean(p, "firstTowerKill"),
-                        getBoolean(p, "win")
+                        getBoolean(p, "win"),
+                        playerRunes
                 );
 
                 participants.add(stats);
@@ -147,5 +150,66 @@ public class MatchAnalyticsConsumer {
     private boolean getBoolean(Map<String, Object> map, String key) {
         Object val = map.get(key);
         return Boolean.TRUE.equals(val);
+    }
+
+    @SuppressWarnings("unchecked")
+    private MatchSummary.PlayerRunes extractRunes(Map<String, Object> participantMap) {
+        Object rawPerks = participantMap.get("perks");
+        if (!(rawPerks instanceof Map<?, ?> perksMapRaw)) {
+            return new MatchSummary.PlayerRunes(0, 0, List.of(), List.of(), List.of());
+        }
+
+        Map<String, Object> perks = (Map<String, Object>) perksMapRaw;
+
+        List<Integer> startPerks = new ArrayList<>();
+        Object rawStatPerks = perks.get("statPerks");
+        if (rawStatPerks instanceof Map<?, ?> statMapRaw) {
+            Map<String, Object> statMap = (Map<String, Object>) statMapRaw;
+            startPerks.add(getInt(statMap, "offense"));
+            startPerks.add(getInt(statMap, "flex"));
+            startPerks.add(getInt(statMap, "defense"));
+        }
+
+
+        int primaryStyleId = 0;
+        int subStyleId = 0;
+        List<Integer> primaryPerks = new ArrayList<>();
+        List<Integer> subPerks = new ArrayList<>();
+
+        Object rawStyles = perks.get("styles");
+        if (rawStyles instanceof List<?> stylesListRaw) {
+            List<Map<String, Object>> stylesList = (List<Map<String, Object>>) stylesListRaw;
+
+            for (Map<String, Object> styleEntry : stylesList) {
+                String desc = getString(styleEntry, "description");
+                int styleId = getInt(styleEntry, "style");
+
+                List<Integer> perkIds = new ArrayList<>();
+                Object rawSelections = styleEntry.get("selections");
+                if (rawSelections instanceof List<?> selectionsRaw) {
+                    for (Object selObj : (List<?>) selectionsRaw) {
+                        if (selObj instanceof Map<?, ?> selMap) {
+                            perkIds.add(getInt((Map<String, Object>) selMap, "perk"));
+                        }
+                    }
+                }
+
+                if ("primaryStyle".equalsIgnoreCase(desc)) {
+                    primaryStyleId = styleId;
+                    primaryPerks = perkIds;
+                } else if ("subStyle".equalsIgnoreCase(desc)) {
+                    subStyleId = styleId;
+                    subPerks = perkIds;
+                }
+            }
+        }
+
+        return new MatchSummary.PlayerRunes(
+                primaryStyleId,
+                subStyleId,
+                primaryPerks,
+                subPerks,
+                startPerks
+        );
     }
 }
