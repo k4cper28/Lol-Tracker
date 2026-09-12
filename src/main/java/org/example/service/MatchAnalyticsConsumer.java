@@ -114,6 +114,70 @@ public class MatchAnalyticsConsumer {
             }
         }
 
+        List<Map<String, Object>> rawTeams = (List<Map<String, Object>>) info.get("teams");
+        List<MatchSummary.TeamInfo> teams = new ArrayList<>();
+
+
+
+        if (rawTeams != null) {
+            for (Map<String, Object> t : rawTeams){
+
+                Map<String, Object> objectives = (Map<String, Object>) t.get("objectives");
+
+                int baron = 0;
+                int dragon = 0;
+                int herald = 0;
+                int inhibitor = 0;
+                int tower = 0;
+                int horde = 0;
+                int champion = 0;
+                int atakhan = 0;
+
+                if (objectives != null) {
+                    baron = getObjectiveKills(objectives, "baron");
+                    dragon = getObjectiveKills(objectives, "dragon");
+                    herald = getObjectiveKills(objectives, "riftHerald");
+                    inhibitor = getObjectiveKills(objectives, "inhibitor");
+                    tower = getObjectiveKills(objectives, "tower");
+                    horde = getObjectiveKills(objectives, "horde");
+                    champion = getObjectiveKills(objectives, "champion");
+                    atakhan = getObjectiveKills(objectives, "atakhan");
+                }
+
+                List<Integer> bans = new ArrayList<>();
+
+                Object rawBans = t.get("bans");
+
+                if (rawBans instanceof List<?> banList) {
+                    for (Object banObj : banList) {
+                        if (banObj instanceof Map<?, ?> banMap) {
+                            bans.add(
+                                    getInt((Map<String, Object>) banMap, "championId")
+                            );
+                        }
+                    }
+                }
+
+                MatchSummary.TeamInfo teaminfo = new MatchSummary.TeamInfo(
+                        getInt(t,"teamId"),
+                        getBoolean(t,  "win"),
+                        baron,
+                        dragon,
+                        herald,
+                        inhibitor,
+                        tower,
+                        horde,
+                        champion,
+                        bans
+                );
+                        teams.add(teaminfo);
+            }
+
+
+
+        }
+
+
         MatchSummary summary = new MatchSummary(
                 matchId,
                 gameDuration,
@@ -122,7 +186,9 @@ public class MatchAnalyticsConsumer {
                 platformId,
                 queueId,
                 mapId,
-                participants
+                participants,
+                teams
+
         );
 
         matchSummaryRepository.save(summary);
@@ -211,5 +277,21 @@ public class MatchAnalyticsConsumer {
                 subPerks,
                 startPerks
         );
+    }
+
+    private int getObjectiveKills(
+            Map<String, Object> objectives,
+            String objectiveName) {
+
+        Object rawObjective = objectives.get(objectiveName);
+
+        if (rawObjective instanceof Map<?, ?> objective) {
+            return getInt(
+                    (Map<String, Object>) objective,
+                    "kills"
+            );
+        }
+
+        return 0;
     }
 }

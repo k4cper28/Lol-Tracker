@@ -17,7 +17,8 @@ public record MatchSummary(
         String platformId,
         int queueId,
         int mapId,
-        List<ParticipantStats> participants
+        List<ParticipantStats> participants,
+        List<TeamInfo> teams
 ) {
     public record ParticipantStats(
         String puuid,
@@ -61,6 +62,22 @@ public record MatchSummary(
             List<Integer> primaryPerks,
             List<Integer> subPerks,
             List<Integer> startPerks
+    ){
+
+    }
+
+    public record TeamInfo(
+            int id,
+            boolean win,
+            int baron,
+            int dragon,
+            int herald,
+            int inhibitor,
+            int tower,
+            int horde,
+            int champion,
+            List<Integer> bans
+
     ){
 
     }
