@@ -1,0 +1,121 @@
+.search-bar {
+  width: 800px;
+  height: 70px;
+  background-color: #16202c;
+  border: 4px solid #785A28;
+  border-radius: 50px;
+  box-sizing: border-box;
+  padding: 0 20px;
+
+  /* Centrowanie wszystkich elementów w prostokącie */
+  display: flex;
+  align-items: center;     /* Środek w pionie */
+  justify-content: center; /* Środek w poziomie */
+  gap: 10px;               /* Równy odstęp między każdym elementem */
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  color: #C8AA6E;
+  background-color: #0B1317;
+  font-size: 18px;
+  height: 40px;
+  border-radius: 50px; 
+  border: 2px solid #785A28;
+  padding: 0 15px;
+  box-sizing: border-box;
+  margin: 0; /* usunięto rozbieżne marginesy - spacing załatwia gap */
+}
+
+.search-input::placeholder {
+  color: #52657a;
+}
+
+.name-input {
+  width: 300px;
+}
+
+.tag-input {
+  width: 100px;
+}
+
+/* Kontener dropdownu */
+.region-dropdown {
+  position: relative;
+  height: 40px;       /* dopasowane do równej wysokości 40px z inputami */
+  width: 90px;        /* stała szerokość zamiast % dla równego środka */
+  display: flex;
+}
+
+/* Wygląd zamkniętego przycisku */
+.region-select-btn {
+  width: 100%;
+  height: 100%;
+  background-color: #0B1317;
+  color: #C8AA6E;
+  border: 2px solid #785A28;
+  border-radius: 50px; 
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;          /* usunięto margines */
+}
+
+/* Rozwinięte okno z ramką */
+.region-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background-color: #0B1317;
+  border: 2px solid #785A28;
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+  list-style: none;
+  padding: 6px 0;
+  margin: 0;
+  z-index: 100;
+}
+
+/* Opcje w środku menu */
+.region-option {
+  color: #C8AA6E;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  margin: 2px 4px;
+}
+
+.region-option:hover {
+  background-color: #16202c;
+  color: #f1f5f9;
+  border-radius: 8px;
+}
+
+/* Przycisk wyszukiwania */
+.search-submit-btn {
+  background-color: #C8AA6E50;
+  border: 2px solid #C8AA6E;
+  height: 40px;
+  width: 90px; 
+  border-radius: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f1f5f9;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.search-submit-btn:hover {
+  background-color: #C8AA6E80;
+}
