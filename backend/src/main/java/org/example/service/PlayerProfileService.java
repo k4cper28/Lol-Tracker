@@ -10,9 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriUtils;
 
-import java.nio.charset.StandardCharsets;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -23,27 +22,28 @@ import java.util.stream.Collectors;
 @Service
 public class PlayerProfileService {
 
+    private static final Duration CACHE_TTL = Duration.ofMinutes(30);
+
     private final PlayerRepository playerRepository;
     private final RestClient restClient;
-
-    @Value("${riot.api.region}")
-    private String defaultRegion;
-
-    @Value("${riot.api.platform}")
-    private String defaultPlatform;
-
-    @Value("${riot.api.ddragon-version}")
-    private String ddragonVersion;
-
-    // Czas ważności cache'u - np. 30 minut
-    private static final Duration CACHE_TTL = Duration.ofMinutes(30);
+    private final String defaultRegion;
+    private final String defaultPlatform;
+    private final String ddragonVersion;
 
     public PlayerProfileService(
             PlayerRepository playerRepository,
-            @Value("${riot.api.key}") String apiKey){
+            RestClient.Builder restClientBuilder,
+            @Value("${riot.api.key}") String apiKey,
+            @Value("${riot.api.region}") String defaultRegion,
+            @Value("${riot.api.platform}") String defaultPlatform,
+            @Value("${riot.api.ddragon-version}") String ddragonVersion
+    ) {
         this.playerRepository = playerRepository;
+        this.defaultRegion = defaultRegion;
+        this.defaultPlatform = defaultPlatform;
+        this.ddragonVersion = ddragonVersion;
 
-        this.restClient = RestClient.builder()
+        this.restClient = restClientBuilder
                 .defaultHeader("X-Riot-Token", apiKey)
                 .build();
     }
@@ -66,13 +66,11 @@ public class PlayerProfileService {
     }
 
     private PlayerProfile fetchAndSaveFromRiot(String gameName, String tagLine) {
-        String encodedName = UriUtils.encode(gameName, StandardCharsets.UTF_8);
-        String encodedTag = UriUtils.encode(tagLine, StandardCharsets.UTF_8);
 
         // KROK A: Pobierz PUUID z klastra regionalnego (europe)
         AccountDto account = restClient.get()
                 .uri("https://{region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}",
-                        defaultRegion, encodedName, encodedTag)
+                        defaultRegion, gameName, tagLine)
                 .retrieve()
                 .body(AccountDto.class);
 

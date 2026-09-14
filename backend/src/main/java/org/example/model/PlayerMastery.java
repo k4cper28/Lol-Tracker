@@ -1,9 +1,11 @@
 package org.example.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+@Document(collection = "player_masteries")
 public record PlayerMastery(
         @Id
         String puuid,
@@ -12,9 +14,8 @@ public record PlayerMastery(
     public record ChampionMastery(
             @Id
             int championId,
-            int championLvl,
+            int championLevel,
             int championPoints
     ){
-
     }
 }
