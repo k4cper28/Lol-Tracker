@@ -7,7 +7,7 @@ export default function App() {
   return (
     <main style={{ fontFamily: 'sans-serif', textAlign: 'center', padding: '3rem' }}>
       <h1 style={{ color: '#b8c5ca' }}>🚀 LoL Tracker - Frontend Test</h1>
-      <p>Jeśli to widzisz, React działa wewnątrz kontenera Dockera!</p>
+      <p>hejka!</p>
       
       <div style={{ marginTop: '2rem' }}>
         <button 
