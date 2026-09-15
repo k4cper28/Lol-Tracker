@@ -1,7 +1,10 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './SearchBar.css';
 
 export const SearchBar = () => {
+  const navigate = useNavigate();
+  
   const [region, setRegion] = useState<string>('EUNE');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [playerName, setPlayerName] = useState<string>('');
@@ -18,8 +21,21 @@ export const SearchBar = () => {
   };
 
   const handleSearch = () => {
-    console.log(`Szukam: ${playerName} #${tagLine} na serwerze ${region}`);
+    const trimmedPlayerName = playerName.trim();
+    const trimmedTagLine = tagLine.trim();
+
+    if (!trimmedPlayerName && !trimmedTagLine) return;
+
+    navigate(`/${encodeURIComponent(trimmedPlayerName)}/${encodeURIComponent(trimmedTagLine)}/${region}`);
   };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  
 
   return (
     <div className="search-bar">

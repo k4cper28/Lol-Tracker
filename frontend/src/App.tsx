@@ -1,25 +1,16 @@
-import SearchBar from './components/SearchBar';
-import './App.css';
-import GameCard from './components/GameCard';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Profile from './pages/Profile';
 
-
-function App() {
+export const App = () => {
   return (
-    <div className="app-container">
-      <header className="navbar">
-        <a href="/" className="logo-link">
-          <img src="/logo.svg" alt="Riftly" className="logo-img" />
-        </a>
-      </header>
-
-      <main className="main-content">
-        <img src="/huge-logo.svg" alt="Riftly" className="hero-logo" />
-        
-        {/* Sam pusty prostokąt */}
-        <SearchBar />
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/:playerName/:tagLine/:region" element={<Profile />} />
+      </Routes>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
