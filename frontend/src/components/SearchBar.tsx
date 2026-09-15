@@ -4,7 +4,7 @@ import './SearchBar.css';
 
 export const SearchBar = () => {
   const navigate = useNavigate();
-  
+
   const [region, setRegion] = useState<string>('EUNE');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [playerName, setPlayerName] = useState<string>('');
@@ -24,7 +24,7 @@ export const SearchBar = () => {
     const trimmedPlayerName = playerName.trim();
     const trimmedTagLine = tagLine.trim();
 
-    if (!trimmedPlayerName && !trimmedTagLine) return;
+    if (!trimmedPlayerName || !trimmedTagLine) return;
 
     navigate(`/${encodeURIComponent(trimmedPlayerName)}/${encodeURIComponent(trimmedTagLine)}/${region}`);
   };
