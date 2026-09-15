@@ -1,0 +1,374 @@
+@import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:wght@400;500;700&display=swap');
+
+.game-card {
+  width: 650px;
+  height: 150px; 
+  background-color: #142229;
+  border: 2px solid #785A28;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
+
+  font-family: 'Intel One Mono', monospace;
+}
+
+.game-card-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 140px; 
+  width: 140px;
+  box-sizing: border-box;
+  margin-left: -10px; 
+}
+
+.game-card-top-info {
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.game-card-top-info p {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.game-card-champion {
+  height: 60px;
+  width: 135px;
+  background-color: #0B1317;
+  border: 2px solid #785A28;
+  border-radius: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+
+.game-card-bottom-info {
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0px;
+}
+
+.game-card-bottom-info p {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.game-card-info p {
+  margin: 0;
+}
+.game-card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+  gap: 2px;
+  text-align: center;
+}
+
+.game-card-type-game {
+  color: #A09B8B;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.game-card-time {
+  color: #CDBE91;
+  font-size: 10px;
+}
+
+.game-card-champion{
+    align-self: center;
+    width: 135px;
+    height: 60px;
+    background-color: #0B1317;
+    border: 2px solid #785A28;
+    border-radius: 35px;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.game-card-champion-icon{
+    width: 60px;         
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;            
+    flex-shrink: 0;              
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #785A28; 
+    margin-left: -2px;     
+}
+
+.game-card-champion-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;           
+    display: block;
+}
+
+.game-card-summoner-spells {
+  display: flex;
+  flex-direction: column; 
+  gap: 4px;  
+  margin-left: 8px;           
+}
+
+.game-card-summoner-spell {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #785A28;
+  box-sizing: border-box;
+  
+}
+
+.game-card-summoner-spell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.game-card-champion-runes{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-left: 6px;     
+}
+
+.game-card-rune{
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #785A28;
+    box-sizing: border-box;
+}
+
+.game-card-rune img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.game-card-champion-resault{
+    color: #2DEB90;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+
+
+.game-card-champion-game-duration{
+    color: #CDBE91;
+    font-size: 10px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.game-card-divider {
+  width: 1.5px;
+  height: 80%; 
+  background: linear-gradient(
+    180deg,
+    rgba(120, 90, 40, 0) 0%,
+    #CDBE91 50%,
+    rgba(120, 90, 40, 0) 100%
+  );
+  margin: 0 8px;
+  flex-shrink: 0;
+}   
+
+.game-card-stats{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.game-card-stats p {
+    margin: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.game-card-kda{
+    color: #C89B3C;
+    font-size: 14px;
+    font-weight: bold;
+}
+.game-card-kda-ratio{
+    color: #2DEB90;
+    font-size: 12px;
+    font-weight: bold;
+}
+.game-card-cs{
+    color: #A09B8B;
+    font-size: 10px;
+    font-weight: 300;
+}
+.game-card-vision{
+    color: #A09B8B;
+    font-size: 10px;
+    font-weight: 300;
+}
+
+.game-card-items {
+  display: grid;
+  grid-template-columns: repeat(4, 25px); 
+  grid-template-rows: repeat(2, 25px);    
+  gap: 5px;                              
+  align-items: center;
+  justify-content: center;
+}
+
+.game-card-item {
+  width: 25px;
+  height: 25px;
+  background-color: #0B1317;          
+  border: 1px solid #785A28;
+  border-radius: 6px;                     
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-card-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+.game-card-players {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  margin-left: auto;        
+  flex-shrink: 0;
+}
+
+.game-card-team {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 95px;             
+  flex-shrink: 0;
+}
+
+.game-card-player {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+}
+
+.game-card-player-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  border: 1px solid #1e282d;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+}
+
+.game-card-player-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  overflow: hidden;
+  flex: 1;
+}
+
+.game-card-player-champ {
+  color: #A09B8B;
+  font-size: 8.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-card-player-name {
+  color: #CDBE91;
+  font-size: 7.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-card-expand-btn {
+  width: 36px;
+  background-color: #0B1317;
+  border: 2px solid #785A28;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+
+  margin-left: 10px;           
+  margin-right: -17px;         
+  margin-top: -16px;
+  margin-bottom: -16px;
+  height: calc(100% + 32px);  
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.game-card-expand-btn:hover {
+  background-color: #142229;
+  border-color: #C8AA6E;
+}
+
+
+.game-card-expand-arrow {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 9px solid #CDBE91; 
+  transition: transform 0.2s ease;
+}
+
+.game-card-expand-btn.active .game-card-expand-arrow {
+  transform: rotate(180deg);
+}

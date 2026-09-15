@@ -1,5 +1,6 @@
 import SearchBar from './components/SearchBar';
 import './App.css';
+import GameCard from './components/GameCard';
 
 
 function App() {

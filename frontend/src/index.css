@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
 /* Kontener na całą stronę */
 html, body {
   height: 100%;
@@ -15,7 +17,6 @@ body {
   background-attachment: fixed;
   color: #f1f5f9;
   font-family: sans-serif;
-  margin: 100px 100px 100px 100px;
 }
 
 .app-container {
