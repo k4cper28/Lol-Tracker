@@ -40,6 +40,7 @@ body {
 .logo-link {
   display: inline-block;
   text-decoration: none;
+  height: 70px;
 }
 
 .logo-img {
