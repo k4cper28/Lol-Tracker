@@ -15,7 +15,6 @@ function Home() {
       <main className="main-content">
         <img src="/huge-logo.svg" alt="Riftly" className="hero-logo" />
         
-        {/* Sam pusty prostokąt */}
         <SearchBar />
       </main>
     </div>
