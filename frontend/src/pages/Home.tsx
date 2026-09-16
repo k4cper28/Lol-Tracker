@@ -1,6 +1,6 @@
 import SearchBar from '../components/SearchBar';
 import './Home.css';
-import GameCard from '../components/GameCard';
+
 
 
 function Home() {

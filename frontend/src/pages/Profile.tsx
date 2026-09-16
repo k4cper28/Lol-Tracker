@@ -2,6 +2,7 @@ import { SearchBar } from '../components/SearchBar';
 import { GameCard } from '../components/GameCard';
 import { Link } from 'react-router-dom';
 import './Home.css';
+import RankCard from '../components/RankCard.';
 
 
 
@@ -20,6 +21,7 @@ function Profile() {
                 {/* Sam pusty prostokąt */}
                 <SearchBar />
                 <GameCard />
+                <RankCard />
             </main>
         </div>
     );

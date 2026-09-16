@@ -26,7 +26,9 @@ export const SearchBar = () => {
 
     if (!trimmedPlayerName || !trimmedTagLine) return;
 
-    navigate(`/${encodeURIComponent(trimmedPlayerName)}/${encodeURIComponent(trimmedTagLine)}/${region}`);
+    navigate(
+      `/${encodeURIComponent(trimmedPlayerName)}/${encodeURIComponent(trimmedTagLine)}/${region}`
+    );
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -34,8 +36,6 @@ export const SearchBar = () => {
       handleSearch();
     }
   };
-
-  
 
   return (
     <div className="search-bar">
@@ -45,8 +45,9 @@ export const SearchBar = () => {
         placeholder="Game Name"
         value={playerName}
         onChange={handleNameChange}
+        onKeyDown={handleKeyDown}
       />
-      
+
       <h1 style={{ color: '#d1a868', margin: 0 }}>#</h1>
 
       <input
@@ -55,13 +56,13 @@ export const SearchBar = () => {
         placeholder="TAG"
         value={tagLine}
         onChange={handleTagChange}
+        onKeyDown={handleKeyDown}
         maxLength={5}
       />
 
-      {/* Zastąpiony select wersją z ramką menu */}
       <div className="region-dropdown">
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="region-select-btn"
           onClick={() => setIsOpen(!isOpen)}
         >
@@ -85,7 +86,12 @@ export const SearchBar = () => {
           </ul>
         )}
       </div>
-        <button type="button" className="search-submit-btn" onClick={handleSearch}>
+
+      <button
+        type="button"
+        className="search-submit-btn"
+        onClick={handleSearch}
+      >
         🔍
       </button>
     </div>
