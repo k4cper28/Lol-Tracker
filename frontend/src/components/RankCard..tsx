@@ -4,7 +4,7 @@ export const RankCard = () => {
   return (
     <div className="rank-card"> 
       <div className="rank-card-header-content">
-        <div className="game-card-divider"></div>
+        <div className="rank-card-divider"></div>
         <span className="rank-card-header-title">Ranked Solo</span>
       </div>
 

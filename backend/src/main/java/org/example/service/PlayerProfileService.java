@@ -149,4 +149,17 @@ public class PlayerProfileService {
                 .orElseThrow(() -> new RuntimeException("Gracz " + gameName + "#" + tagLine + " nie istnieje w bazie danych"));
     }
 
+    public LeagueEntry getRankByPuuidAndQueue(String puuid, String queue){
+        String queueKey = switch (queue.toLowerCase()) {
+            case "solo", "soloduo", "ranked_solo_5x5" -> "RANKED_SOLO_5x5";
+            case "flex", "ranked_flex_sr" -> "RANKED_FLEX_SR";
+            default -> queue.toUpperCase();
+        };
+
+        return playerRepository.findById(puuid)
+                .map(PlayerProfile::ranks)
+                .map(ranks -> ranks.get(queueKey))
+                .orElse(null);
+    }
+
 }

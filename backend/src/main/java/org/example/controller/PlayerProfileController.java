@@ -68,5 +68,16 @@ public class PlayerProfileController {
         return ResponseEntity.ok(Map.of("iconUrl", iconUrl));
     }
 
+    @GetMapping("/{puuid}/{queue}/rank")
+    public ResponseEntity<LeagueEntry> getRank(
+            @PathVariable String puuid,
+            @PathVariable String queue
+    ) {
+        LeagueEntry rank = playerProfileService.getRankByPuuidAndQueue(puuid, queue);
+        if (rank == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(rank);
+    }
 
 }
