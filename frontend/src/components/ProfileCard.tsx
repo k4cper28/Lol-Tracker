@@ -3,10 +3,16 @@ import type { Mastery } from '../pages/Profile';
 
 interface ProfileCardProps {
   masteries?: Mastery[];
+  profileInfo?: ProfilInfo | null;
 }
 
-export const ProfileCard = ({ masteries = [] }: ProfileCardProps) => {
+interface ProfileInfoProps{
+
+}
+
+export const ProfileCard = ({ masteries = [], profileInfo }: ProfileCardProps) => {
     return (
+
         <div className="profile-card">
             <div className='profile-mastery-block'>
                 <span className='mastery-title'>Top champion mastery poits</span>
@@ -39,13 +45,20 @@ export const ProfileCard = ({ masteries = [] }: ProfileCardProps) => {
             <div className="profile-summoner-block">
                 <div className="profile-icon-wrapper">
                     <div className="profile-icon-frame">
-                        <img src="/Kaisa.png" alt="Summoner Icon" className="profile-avatar" />
+                        <img 
+                            src={
+                                profileInfo?.profileIcon
+                            ? `https://ddragon.leagueoflegends.com/cdn/14.17.1/img/profileicon/${profileInfo.profileIcon}.png`
+                            : `https://ddragon.leagueoflegends.com/cdn/14.17.1/img/profileicon/1.png`
+                            }
+                            alt="Summoner Icon"
+                            className="profile-avatar" />
                     </div>
-                    <span className="profile-level-badge">312</span>
+                    <span className="profile-level-badge">{profileInfo?.summonerLevel ?? '...'}</span>
                 </div>
                 <div className="profile-details">
-                    <span className="profile-name">k4cper</span>
-                    <span className="profile-tag">#2137</span>
+                    <span className="profile-name">{profileInfo?.gameName ?? '...'}</span>
+                    <span className="profile-tag">#{profileInfo?.tagLine ?? '...'}</span>
                 </div>
             </div>
             <div className='profile-top-rank-block'>

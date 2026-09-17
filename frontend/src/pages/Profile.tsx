@@ -5,10 +5,6 @@ import SearchBar from '../components/SearchBar';
 import ProfileCard from '../components/ProfileCard';
 import './Profile.css';
 
-interface PuuidResponse {
-  puuid: string;
-}
-
 export interface RankInfo {
   queueType: string;
   tier: string;
@@ -28,6 +24,17 @@ export interface Mastery {
   championPoints: number;
 }
 
+export interface ProfilInfo {
+  puuid: string;
+  gameName: string;
+  tagLine: string;
+  summonerLevel: number;
+  profileIcon: number;
+  iconUrl: string;
+  ranks?: Record<string, RankInfo>;
+  updatedAt?: string;
+}
+
 export const Profile = () => {
   const navigate = useNavigate();
   const { playerName, tagLine, region } = useParams<{
@@ -36,9 +43,7 @@ export const Profile = () => {
     region: string;
   }>();
 
-  const [puuid, setPuuid] = useState<string | null>(null);
-  const [soloRank, setSoloRank] = useState<RankInfo | null>(null);
-  const [flexRank, setFlexRank] = useState<RankInfo | null>(null);
+  const [profileInfo, setProfileInfo] = useState<ProfilInfo | null>(null);
   const [topMasteries, setTopMasteries] = useState<Mastery[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -54,29 +59,24 @@ export const Profile = () => {
     let isSubscribed = true;
     setLoading(true);
 
-    const fetchPlayerData = async () => {
+   const fetchPlayerData = async () => {
       try {
-        // 1. Pobranie PUUID
-        const puuidRes = await fetch(
+        // 1. Pobranie całego profilu (zawiera PUUID, dane gracza i mapę rang)
+        const profileRes = await fetch(
           `http://localhost:8080/api/players/${encodeURIComponent(playerName)}/${encodeURIComponent(tagLine)}`
         );
-        if (!puuidRes.ok) throw new Error('Player not found');
-        const puuidData = (await puuidRes.json()) as PuuidResponse;
-
-        // 2. Równoległe pobranie rang oraz top 3 maestrii
-        const [soloRes, flexRes, masteryRes] = await Promise.all([
-          fetch(`http://localhost:8080/api/players/${puuidData.puuid}/solo/rank`),
-          fetch(`http://localhost:8080/api/players/${puuidData.puuid}/flex/rank`),
-          fetch(`http://localhost:8080/api/player/mastery/top3/${puuidData.puuid}`)
-        ]);
-
-        if (!isSubscribed) return;
-
-        setPuuid(puuidData.puuid);
-        setSoloRank(soloRes.ok ? await soloRes.json() : null);
-        setFlexRank(flexRes.ok ? await flexRes.json() : null);
+        if (!profileRes.ok) throw new Error('Player not found');
+        const profileData = (await profileRes.json()) as ProfilInfo;
         
-        if (masteryRes.ok) {
+        if (!isSubscribed) return;
+        setProfileInfo(profileData);
+
+        // 2. Pobranie top 3 maestrii na podstawie PUUID z pobranego profilu
+        const masteryRes = await fetch(
+          `http://localhost:8080/api/player/mastery/top3/${profileData.puuid}`
+        );
+        
+        if (masteryRes.ok && isSubscribed) {
           const masteryData = (await masteryRes.json()) as Mastery[];
           setTopMasteries(masteryData);
         }
@@ -99,6 +99,9 @@ export const Profile = () => {
       isSubscribed = false;
     };
   }, [playerName, tagLine, region, navigate]);
+
+  const soloRank = profileInfo?.ranks?.['RANKED_SOLO_5x5'] ?? null;
+  const flexRank = profileInfo?.ranks?.['RANKED_FLEX_SR'] ?? null;
 
   return (
     <div className="profile-page-wrapper">
@@ -127,17 +130,8 @@ export const Profile = () => {
       </header>
 
       <main className="profile-main-content">
-        <ProfileCard masteries={topMasteries} />
-
-        <h2>Profil: {playerName}#{tagLine} ({region})</h2>
-
-        <div style={{ background: '#1e1e1e', padding: '12px', borderRadius: '8px', marginBottom: '20px' }}>
-          <small style={{ color: '#aaa' }}>PUUID:</small>
-          <p style={{ fontFamily: '"Intel One Mono", monospace', color: '#d1a868', margin: '4px 0 0 0', wordBreak: 'break-all' }}>
-            {loading ? 'Ładowanie...' : puuid}
-          </p>
-        </div>
-
+        <ProfileCard masteries={topMasteries} profileInfo={profileInfo} />
+        
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           <RankCard title="Ranked Solo" rankData={soloRank} />
           <RankCard title="Ranked Flex" rankData={flexRank} />

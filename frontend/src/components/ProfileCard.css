@@ -12,6 +12,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: row;
+    margin-bottom: 40px;
 
     font-family: 'Intel One Mono', monospace;
 }
