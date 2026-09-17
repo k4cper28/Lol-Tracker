@@ -4,6 +4,7 @@ import RankCard from '../components/RankCard';
 import SearchBar from '../components/SearchBar';
 import ProfileCard from '../components/ProfileCard';
 import './Profile.css';
+import MatchHistory from '../components/MatchHistory';
 
 export interface RankInfo {
   queueType: string;
@@ -131,10 +132,17 @@ export const Profile = () => {
 
       <main className="profile-main-content">
         <ProfileCard masteries={topMasteries} profileInfo={profileInfo} />
-        
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          <RankCard title="Ranked Solo" rankData={soloRank} />
-          <RankCard title="Ranked Flex" rankData={flexRank} />
+        <div className='profile-games-info'>
+          <div className='profile-game-info-left'>
+            <RankCard title="Ranked Solo" rankData={soloRank} />
+            <RankCard title="Ranked Flex" rankData={flexRank} />
+            
+          </div>
+          <div className='profile-game-info-right'>
+            {profileInfo?.puuid && <MatchHistory puuid={profileInfo.puuid} />}
+
+          </div>
+
         </div>
       </main>
     </div>

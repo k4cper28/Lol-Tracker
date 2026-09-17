@@ -66,3 +66,17 @@
   padding-top: 80px;
   box-sizing: border-box;
 }
+
+.profile-games-info{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 50px;
+}
+
+.profile-game-info-left{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 30px;
+}

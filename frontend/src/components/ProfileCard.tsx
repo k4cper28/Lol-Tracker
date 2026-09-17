@@ -1,5 +1,6 @@
 import './ProfileCard.css';
-import type { Mastery } from '../pages/Profile';
+import type { Mastery, ProfilInfo } from '../pages/Profile';
+
 
 interface ProfileCardProps {
   masteries?: Mastery[];
@@ -48,8 +49,8 @@ export const ProfileCard = ({ masteries = [], profileInfo }: ProfileCardProps) =
                         <img 
                             src={
                                 profileInfo?.profileIcon
-                            ? `https://ddragon.leagueoflegends.com/cdn/14.17.1/img/profileicon/${profileInfo.profileIcon}.png`
-                            : `https://ddragon.leagueoflegends.com/cdn/14.17.1/img/profileicon/1.png`
+                            ? `https://ddragon.leagueoflegends.com/cdn/16.18.1/img/profileicon/${profileInfo.profileIcon}.png`
+                            : `https://ddragon.leagueoflegends.com/cdn/16.18.1/img/profileicon/1.png`
                             }
                             alt="Summoner Icon"
                             className="profile-avatar" />

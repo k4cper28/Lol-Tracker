@@ -10,10 +10,14 @@
   align-items: center;
   padding: 16px;
   box-sizing: border-box;
-
+  margin-bottom: 30px;
   font-family: 'Intel One Mono', monospace;
 }
 
+
+
+
+/* LEWA SEKCJA (POSTAĆ, CZARY, RUNY, CZAS) */
 .game-card-left {
   display: flex;
   flex-direction: column;
@@ -39,47 +43,6 @@
   line-height: 1.2;
 }
 
-.game-card-champion {
-  height: 60px;
-  width: 135px;
-  background-color: #0B1317;
-  border: 2px solid #785A28;
-  border-radius: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  box-sizing: border-box;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-
-.game-card-bottom-info {
-  height: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 0px;
-}
-
-.game-card-bottom-info p {
-  margin: 0;
-  line-height: 1.2;
-}
-
-.game-card-info p {
-  margin: 0;
-}
-.game-card-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center; 
-  justify-content: center; 
-  gap: 2px;
-  text-align: center;
-}
-
 .game-card-type-game {
   color: #A09B8B;
   font-size: 10px;
@@ -91,39 +54,40 @@
   font-size: 10px;
 }
 
-.game-card-champion{
-    align-self: center;
-    width: 135px;
-    height: 60px;
-    background-color: #0B1317;
-    border: 2px solid #785A28;
-    border-radius: 35px;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    justify-content: flex-start;
-    box-sizing: border-box;
-    overflow: hidden;
+.game-card-champion {
+  align-self: center;
+  width: 135px;
+  height: 60px;
+  background-color: #0B1317;
+  border: 2px solid #785A28;
+  border-radius: 35px;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.game-card-champion-icon{
-    width: 60px;         
-    height: 60px;
-    border-radius: 50%;
-    overflow: hidden;            
-    flex-shrink: 0;              
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #785A28; 
-    margin-left: -2px;     
+.game-card-champion-icon {
+  width: 60px;         
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;            
+  flex-shrink: 0;              
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #785A28; 
+  margin-left: -2px;     
 }
 
 .game-card-champion-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;           
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;           
+  display: block;
 }
 
 .game-card-summoner-spells {
@@ -144,7 +108,6 @@
   justify-content: center;
   border: 1.5px solid #785A28;
   box-sizing: border-box;
-  
 }
 
 .game-card-summoner-spell img {
@@ -154,24 +117,24 @@
   display: block;
 }
 
-.game-card-champion-runes{
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-left: 6px;     
+.game-card-champion-runes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: 6px;     
 }
 
-.game-card-rune{
-    width: 19px;
-    height: 19px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #785A28;
-    box-sizing: border-box;
+.game-card-rune {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #785A28;
+  box-sizing: border-box;
 }
 
 .game-card-rune img {
@@ -181,22 +144,35 @@
   display: block;
 }
 
-.game-card-champion-resault{
-    color: #2DEB90;
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
+.game-card-bottom-info {
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0px;
 }
 
-
-
-.game-card-champion-game-duration{
-    color: #CDBE91;
-    font-size: 10px;
-    font-weight: 500;
-    margin: 0;
+.game-card-bottom-info p {
+  margin: 0;
+  line-height: 1.2;
 }
 
+.game-card-champion-resault {
+  color: #2DEB90;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.game-card-champion-game-duration {
+  color: #CDBE91;
+  font-size: 10px;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* PIONOWE ROZDZIELACZE */
 .game-card-divider {
   width: 1.5px;
   height: 80%; 
@@ -210,46 +186,67 @@
   flex-shrink: 0;
 }   
 
-.game-card-stats{
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 2px;
+/* STATYSTYKI (KDA, CS, VISION) */
+.game-card-stats {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 2px;
 }
 
 .game-card-stats p {
-    margin: 0;
-    text-align: center;
-    width: 100%;
+  margin: 0;
+  text-align: center;
+  width: 100%;
 }
 
-.game-card-kda{
-    color: #C89B3C;
-    font-size: 14px;
-    font-weight: bold;
-}
-.game-card-kda-ratio{
-    color: #2DEB90;
-    font-size: 12px;
-    font-weight: bold;
-}
-.game-card-cs{
-    color: #A09B8B;
-    font-size: 10px;
-    font-weight: 300;
-}
-.game-card-vision{
-    color: #A09B8B;
-    font-size: 10px;
-    font-weight: 300;
+.game-card-kda {
+  color: #C89B3C;
+  font-size: 14px;
+  font-weight: bold;
 }
 
+/* .game-card-kda-ratio {
+  color: #C89B3C;
+  font-size: 12px;
+  font-weight: bold;
+} */
+
+/* Słabe KDA (< 1.0) - szary / wyblakły czerwonawy */
+.game-card-kda-ratio.low {
+  color: #FF0000;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Przeciętne KDA (1.0 - 2.5) - biały / jasnoszary */
+.game-card-kda-ratio.normal {
+  color: #C89B3C;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Dobre KDA (> 2.5 lub Perfect) - intensywna zieleń / złoto */
+.game-card-kda-ratio.high {
+  color: #2DEB90;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.game-card-cs,
+.game-card-vision {
+  color: #A09B8B;
+  font-size: 10px;
+  font-weight: 300;
+}
+
+/* SIATKA PRZEDMIOTÓW (4x2) */
 .game-card-items {
   display: grid;
   grid-template-columns: repeat(4, 25px); 
   grid-template-rows: repeat(2, 25px);    
-  gap: 5px;                              
+  gap: 5px;                               
   align-items: center;
   justify-content: center;
 }
@@ -274,7 +271,7 @@
   display: block;
 }
 
-
+/* LISTA DRUŻYN (5v5) */
 .game-card-players {
   display: flex;
   flex-direction: row;
@@ -292,28 +289,88 @@
   flex-shrink: 0;
 }
 
-.game-card-player {
+.game-card-team-right {
+  justify-content: flex-end;
+}
+
+/* WIERSZ POJEDYNCZEGO GRACZA (LINK) */
+.game-card-player,
+.game-card-player:link,
+.game-card-player:visited,
+.game-card-player:focus,
+.game-card-player:focus-visible,
+.game-card-player:active {
   display: flex !important;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
   align-items: center;
   gap: 4px;
   height: 20px;
+  text-decoration: none !important;
+  color: inherit !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
 }
 
+.game-card-player:hover {
+  opacity: 0.85;
+}
+
+.game-card-player:hover .game-card-player-name {
+  color: #F0E6D2;
+  text-decoration: underline;
+}
+
+/* IKONY POSTACI GRACZY */
 .game-card-player-icon {
   width: 18px;
   height: 18px;
   border-radius: 2px;
-  border: 1px solid #1e282d;
+  border: 1px solid #1e282d !important;
+  background-color: #0b1317;
   object-fit: cover;
   flex-shrink: 0;
   display: block;
+  box-sizing: border-box;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
+/* PODŚWIETLENIE IKONY TYLKO I WYŁĄCZNIE PRZY HOVERZE */
+.game-card-player:hover .game-card-player-icon {
+  border-color: #C8AA6E !important;
+}
+
+/* BLOKADA ŚWIECENIA PO KLIKNIĘCIU DLA WSZYSTKICH STANÓW INTERAKCJI */
+.game-card-player:focus .game-card-player-icon,
+.game-card-player:focus-visible .game-card-player-icon,
+.game-card-player:active .game-card-player-icon,
+.game-card-player:visited .game-card-player-icon {
+  border-color: #1e282d !important;
+}
+
+/* OPISY GRACZY: LEWA DRUŻYNA */
 .game-card-player-info {
   display: flex;
   flex-direction: column;
+  line-height: 1;
+  overflow: hidden;
+  flex: 1;
+}
+
+/* OPISY GRACZY: PRAWA DRUŻYNA (WYRÓWNANE DO PRAWEJ) */
+.game-card-team-right .game-card-player {
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.game-card-player-info-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
   line-height: 1;
   overflow: hidden;
   flex: 1;
@@ -335,6 +392,7 @@
   text-overflow: ellipsis;
 }
 
+/* PRZYCISK ROZWIJANIA KARTY */
 .game-card-expand-btn {
   width: 36px;
   background-color: #0B1317;
@@ -345,7 +403,6 @@
   justify-content: center;
   cursor: pointer;
   padding: 0;
-
   margin-left: 10px;           
   margin-right: -17px;         
   margin-top: -16px;
@@ -354,11 +411,11 @@
   flex-shrink: 0;
   box-sizing: border-box;
 }
+
 .game-card-expand-btn:hover {
   background-color: #142229;
   border-color: #C8AA6E;
 }
-
 
 .game-card-expand-arrow {
   width: 0;
@@ -371,4 +428,15 @@
 
 .game-card-expand-btn.active .game-card-expand-arrow {
   transform: rotate(180deg);
+}
+
+.game-card-champion-resault.win-text {
+  color: #2DEB90;
+  text-shadow: 0 0 10px rgba(45, 235, 144, 0.3);
+}
+
+/* Wariant dla przegranej (DEFEAT) */
+.game-card-champion-resault.loss-text {
+  color: #FF0000;
+  text-shadow: 0 0 10px rgba(232, 64, 87, 0.3);
 }
