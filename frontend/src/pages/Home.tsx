@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import './Home.css';
-import ProfileCard from '../components/ProfileCard';
+
 
 interface LocationState {
   errorMessage?: string;
@@ -55,11 +55,9 @@ function Home() {
       </header>
 
       <main className="main-content">
-        <img src="/huge-logo.svg" alt="Riftly" className="hero-logo" />
-
-        <SearchBar />
-        <ProfileCard />
-      </main>
+  <img src="/huge-logo.svg" alt="Riftly" className="hero-logo" />
+  <SearchBar onError={(msg) => setToastMessage(msg)} />
+</main>
     </div>
   );
 }

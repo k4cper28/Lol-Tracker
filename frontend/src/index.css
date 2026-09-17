@@ -4,7 +4,7 @@
 html, body {
   height: 100%;
   max-width: 100%;
-  overflow: hidden; /* blokuje scroll zarówno w pionie, jak i poziomie */
+  overflow: auto;
 }
 
 body {
