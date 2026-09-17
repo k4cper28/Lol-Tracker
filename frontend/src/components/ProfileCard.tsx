@@ -1,35 +1,39 @@
 import './ProfileCard.css';
+import type { Mastery } from '../pages/Profile';
 
-export const ProfileCard = () => {
+interface ProfileCardProps {
+  masteries?: Mastery[];
+}
+
+export const ProfileCard = ({ masteries = [] }: ProfileCardProps) => {
     return (
         <div className="profile-card">
             <div className='profile-mastery-block'>
                 <span className='mastery-title'>Top champion mastery poits</span>
                 <div className='mastery-ranking'>
-                    <div className='mastery-rank'>
-                        <div className='mastery-rank-img'>
-                            <img src="/Kaisa.png" alt="Summoner Icon" className="mastery-awatar" />
-                        </div>
-                        <span className='mastery-lvl'>311 lvl</span>
-                        <span className='mastery-points'>311111</span>
-                        <span className='mastery-points'>points</span>
+                    <div className="mastery-ranking">
+                        {masteries.length === 0 ? (
+                        <span style={{ color: '#888', fontSize: '12px' }}>Brak danych</span>
+                        ) : (
+                         masteries.map((m) => (
+                            <div className="mastery-rank" key={m.championId}>
+                            <div className="mastery-rank-img">
+                            <img
+                            src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${m.championId}.png`}
+                            alt={`Champion ${m.championId}`}
+                            className="mastery-awatar"
+                            onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/Kaisa.png';
+                        }}
+                        />
                     </div>
-                    <div className='mastery-rank'>
-                        <div className='mastery-rank-img'>
-                            <img src="/Kaisa.png" alt="Summoner Icon" className="mastery-awatar" />
-                        </div>
-                        <span className='mastery-lvl'>311 lvl</span>
-                        <span className='mastery-points'>311111</span>
-                        <span className='mastery-points'>points</span>
+                    <span className="mastery-lvl">{m.championLevel} lvl</span>
+                    <span className="mastery-points">{m.championPoints.toLocaleString()}</span>
+                    <span className="mastery-points">points</span>
                     </div>
-                    <div className='mastery-rank'>
-                        <div className='mastery-rank-img'>
-                            <img src="/Kaisa.png" alt="Summoner Icon" className="mastery-awatar" />
-                        </div>
-                        <span className='mastery-lvl'>311 lvl</span>
-                        <span className='mastery-points'>311111</span>
-                        <span className='mastery-points'>points</span>
-                    </div>
+                 ))
+                     )}
+        </div>
                 </div>
             </div>
             <div className="profile-summoner-block">

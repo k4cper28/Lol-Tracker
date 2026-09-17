@@ -12,7 +12,6 @@ public record PlayerMastery(
         List<ChampionMastery> champions
 ) {
     public record ChampionMastery(
-            @Id
             int championId,
             int championLevel,
             int championPoints

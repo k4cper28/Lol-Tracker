@@ -57,7 +57,18 @@ public class PlayerMasteryService {
         return masteryRepository.save(playerMastery);
     }
 
-    public Optional<PlayerMastery> getPlayerMastery(String puuid) {
+    public Optional<PlayerMastery> getPlayerMastery(String puuid)
+    {
         return masteryRepository.findById(puuid);
+    }
+
+    public List<PlayerMastery.ChampionMastery> getTop3Masteries(String puuid){
+        return masteryRepository.findTop3MasteriesByPuuid(puuid)
+                .map(PlayerMastery::champions)
+                .orElseGet(() -> fetchAndSavePlayerMastery(puuid)
+                        .champions()
+                        .stream()
+                        .limit(3)
+                        .toList());
     }
 }

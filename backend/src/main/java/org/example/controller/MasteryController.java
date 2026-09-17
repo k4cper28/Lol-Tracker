@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/player/mastery")
 public class MasteryController {
@@ -22,4 +24,13 @@ public class MasteryController {
     public ResponseEntity<PlayerMastery> getMastery(@PathVariable("puuid") String puuid) {
         return ResponseEntity.ok(playerMasteryService.fetchAndSavePlayerMastery(puuid));
     }
+
+    @GetMapping("/top3/{puuid}")
+    public ResponseEntity<List<PlayerMastery.ChampionMastery>> getTop3Mastery(
+            @PathVariable String puuid
+    ) {
+        return ResponseEntity.ok(playerMasteryService.getTop3Masteries(puuid));
+    }
+
+
 }

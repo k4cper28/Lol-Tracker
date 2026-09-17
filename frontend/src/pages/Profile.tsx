@@ -22,6 +22,12 @@ export interface RankInfo {
   hotStreak: boolean;
 }
 
+export interface Mastery {
+  championId: number;
+  championLevel: number;
+  championPoints: number;
+}
+
 export const Profile = () => {
   const navigate = useNavigate();
   const { playerName, tagLine, region } = useParams<{
@@ -33,6 +39,7 @@ export const Profile = () => {
   const [puuid, setPuuid] = useState<string | null>(null);
   const [soloRank, setSoloRank] = useState<RankInfo | null>(null);
   const [flexRank, setFlexRank] = useState<RankInfo | null>(null);
+  const [topMasteries, setTopMasteries] = useState<Mastery[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchError, setSearchError] = useState<string | null>(null);
 
@@ -56,10 +63,11 @@ export const Profile = () => {
         if (!puuidRes.ok) throw new Error('Player not found');
         const puuidData = (await puuidRes.json()) as PuuidResponse;
 
-        // 2. Równoległe pobranie rang
-        const [soloRes, flexRes] = await Promise.all([
+        // 2. Równoległe pobranie rang oraz top 3 maestrii
+        const [soloRes, flexRes, masteryRes] = await Promise.all([
           fetch(`http://localhost:8080/api/players/${puuidData.puuid}/solo/rank`),
-          fetch(`http://localhost:8080/api/players/${puuidData.puuid}/flex/rank`)
+          fetch(`http://localhost:8080/api/players/${puuidData.puuid}/flex/rank`),
+          fetch(`http://localhost:8080/api/player/mastery/top3/${puuidData.puuid}`)
         ]);
 
         if (!isSubscribed) return;
@@ -67,6 +75,11 @@ export const Profile = () => {
         setPuuid(puuidData.puuid);
         setSoloRank(soloRes.ok ? await soloRes.json() : null);
         setFlexRank(flexRes.ok ? await flexRes.json() : null);
+        
+        if (masteryRes.ok) {
+          const masteryData = (await masteryRes.json()) as Mastery[];
+          setTopMasteries(masteryData);
+        }
       } catch (err) {
         console.error('Fetch error:', err);
         if (isSubscribed) {
@@ -114,7 +127,7 @@ export const Profile = () => {
       </header>
 
       <main className="profile-main-content">
-        <ProfileCard />
+        <ProfileCard masteries={topMasteries} />
 
         <h2>Profil: {playerName}#{tagLine} ({region})</h2>
 
