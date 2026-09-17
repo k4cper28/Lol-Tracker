@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import './Home.css';
+import ProfileCard from '../components/ProfileCard';
 
 interface LocationState {
   errorMessage?: string;
@@ -57,6 +58,7 @@ function Home() {
         <img src="/huge-logo.svg" alt="Riftly" className="hero-logo" />
 
         <SearchBar />
+        <ProfileCard />
       </main>
     </div>
   );
