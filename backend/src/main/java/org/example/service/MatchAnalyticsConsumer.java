@@ -24,6 +24,10 @@ public class MatchAnalyticsConsumer {
     @Autowired
     private MatchSummaryRepository matchSummaryRepository;
 
+    @Autowired
+    private org.springframework.kafka.core.KafkaTemplate<String, String> kafkaTemplate;
+
+    private static final java.util.Set<String> EMITTED_PATCHES = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     @KafkaListener(topics = "match-saved-events", groupId = "lol-analytics-group")
     public void handleNewMatch(String matchId){
@@ -46,6 +50,8 @@ public class MatchAnalyticsConsumer {
         String gameVersion = getString(info, "gameVersion");
         String platformId = getString(info, "platformId");
         int mapId = getInt(info,"mapId");
+
+        notifyDDragonItemSync(gameVersion);
 
         List<Map<String, Object>> rawParticipants = (List<Map<String, Object>>) info.get("participants");
         List<MatchSummary.ParticipantStats> participants = new ArrayList<>();
@@ -295,5 +301,18 @@ public class MatchAnalyticsConsumer {
         }
 
         return 0;
+    }
+
+    private void notifyDDragonItemSync(String rawGameVersion){
+        if(rawGameVersion == null || rawGameVersion.isBlank()) return;
+
+        String[] parts = rawGameVersion.split("\\.");
+        if(parts.length < 2 ) return;
+
+        String patch = parts[0] + "." + parts[1];
+        if (EMITTED_PATCHES.add(patch)){
+            kafkaTemplate.send("ddragon-version-sync", patch, patch );
+            System.out.println("-> Wysłano żądanie pobrania itemów dla patcha: " + patch);
+        }
     }
 }
