@@ -49,6 +49,8 @@ public record MatchSummary(
         int turretKills,
         int healedDmg,
         int getDmg,
+        int summoner1Id,
+        int summoner2Id,
         boolean firstBlood,
         boolean firstTower,
         boolean win,

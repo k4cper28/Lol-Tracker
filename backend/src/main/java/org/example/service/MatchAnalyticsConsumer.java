@@ -104,6 +104,8 @@ public class MatchAnalyticsConsumer {
                         getInt(p, "turretKills"),
                         getInt(p, "totalHeal"),
                         getInt(p, "totalDamageTaken"),
+                        getInt(p, "summoner1Id"),
+                        getInt(p, "summoner2Id"),
                         getBoolean(p, "firstBloodKill"),
                         getBoolean(p, "firstTowerKill"),
                         getBoolean(p, "win"),
