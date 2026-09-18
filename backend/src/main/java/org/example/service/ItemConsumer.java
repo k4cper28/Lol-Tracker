@@ -44,7 +44,7 @@ public class ItemConsumer {
                 }
             }
 
-            String url = "https://ddragon.leagueoflegends.com/cdn/" + exactVersion + "/data/pl_PL/item.json";
+            String url = "https://ddragon.leagueoflegends.com/cdn/" + exactVersion + "/data/en_US/item.json";
             Map<String, Object> response = restTemplate.getForObject(url, Map.class);
 
             if (response == null || !response.containsKey("data")) {

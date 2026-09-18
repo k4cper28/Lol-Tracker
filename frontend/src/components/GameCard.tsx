@@ -1,15 +1,23 @@
 import './GameCard.css';
 import { Link } from 'react-router-dom';
+import { useItems, type SimpleItem } from '../types/useItems';
+import { useState } from 'react';
 
 interface GameCardProps {
   match?: any;
   currentPuuid?: string;
 }
 
-const DDRAGON_VERSION = '16.18.1';
 
 export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
   if (!match) return null;
+  
+  const rawGameVersion = match.gameVersion;
+  const patch = rawGameVersion ? rawGameVersion.split('.').slice(0, 2).join('.') : '16.18';
+  const DDRAGON_VERSION = `${patch}.1`;
+
+  const itemsDict = useItems(patch);
+  const [hoveredItem, setHoveredItem] = useState<{ id: number; data?: SimpleItem } | null>(null);
 
   const region = match.platformId ?? 'EUNE';
 
@@ -32,9 +40,18 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
   return new Date(timestamp).toLocaleDateString('pl-PL');
 };
 
+const formatDescription = (rawText?: string) => {
+    if (!rawText) return 'Brak opisu.';
+    return rawText
+      .replace(/<br\s*[\/]?>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .trim();
+  };
+
   // 1. Obsługa danych gracza – z listy participants
   const participantsList = match.info?.participants || match.participants;
   const isMatchSummary = Array.isArray(participantsList);
+
 
   const me = isMatchSummary
     ? participantsList.find((p: any) => p.puuid?.toLowerCase() === currentPuuid?.toLowerCase()) || participantsList[0]
@@ -166,20 +183,49 @@ const kdaClass =
       <div className="game-card-divider" />
 
       <div className="game-card-items">
-        {items.map((itemId, idx) => (
-          <div key={idx} className={`game-card-item ${itemId > 0 ? '' : 'empty'}`}>
-            {itemId > 0 ? (
-              <img
-                src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/item/${itemId}.png`}
-                alt={`Item ${itemId}`}
-                onError={(e) => {
-                  // Fallback na CommunityDragon, gdyby dany item był nowszy niż wersja DDragon
-                  (e.target as HTMLImageElement).src = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/item-icons/${itemId}.png`;
-                }}
-              />
-            ) : null}
-          </div>
-        ))}
+        {items.map((itemId, idx) => {
+          const itemData = itemId > 0 ? itemsDict[itemId.toString()] : undefined;
+
+          return (
+            <div
+              key={idx}
+              className={`game-card-item ${itemId > 0 ? '' : 'empty'}`}
+              onMouseEnter={() => itemId > 0 && setHoveredItem({ id: itemId, data: itemData })}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
+              {itemId > 0 ? (
+                <>
+                  <img
+                    src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/item/${itemId}.png`}
+                    alt={`Item ${itemId}`}
+                    onError={(e) => {
+                      // Fallback na CommunityDragon
+                      (e.target as HTMLImageElement).src = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/item-icons/${itemId}.png`;
+                    }}
+                  />
+
+                  {/* Dymek z opisem – jest rodzeństwem img, a nie dzieckiem */}
+                  {hoveredItem?.id === itemId && (
+                    <div className="item-tooltip">
+                      <div className="item-tooltip-header">
+                        <span className="item-tooltip-name">
+                          {itemData?.name || `Przedmiot #${itemId}`}
+                        </span>
+                      </div>
+                      <div className="item-tooltip-desc">
+                        {formatDescription(itemData?.description)}
+                      </div>
+
+                      {itemData?.gold !== undefined && (
+                          <span className="item-tooltip-gold">{itemData.gold} G</span>
+                        )}
+                    </div>
+                  )}
+                </>
+              ) : null}
+            </div>
+          );
+        })}
       </div>
 
       <div className="game-card-divider" />

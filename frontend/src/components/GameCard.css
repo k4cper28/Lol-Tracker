@@ -207,31 +207,25 @@
   font-weight: bold;
 }
 
-/* .game-card-kda-ratio {
+.game-card-kda-ratio {
   color: #C89B3C;
   font-size: 12px;
   font-weight: bold;
-} */
+}
 
 /* Słabe KDA (< 1.0) - szary / wyblakły czerwonawy */
 .game-card-kda-ratio.low {
   color: #FF0000;
-  font-size: 12px;
-  font-weight: bold;
 }
 
 /* Przeciętne KDA (1.0 - 2.5) - biały / jasnoszary */
 .game-card-kda-ratio.normal {
   color: #C89B3C;
-  font-size: 12px;
-  font-weight: bold;
 }
 
 /* Dobre KDA (> 2.5 lub Perfect) - intensywna zieleń / złoto */
 .game-card-kda-ratio.high {
   color: #2DEB90;
-  font-size: 12px;
-  font-weight: bold;
 }
 
 .game-card-cs,
@@ -439,4 +433,82 @@
 .game-card-champion-resault.loss-text {
   color: #FF0000;
   text-shadow: 0 0 10px rgba(232, 64, 87, 0.3);
+}
+
+
+
+
+/* Kontener slotu musi być relatywny, żeby dymek wiedział gdzie się zakotwiczyć */
+.game-card-item {
+  position: relative;
+}
+
+/* Okienko tooltipa */
+.item-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px); /* Wyświetla się 8px nad slotem */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  background-color: #142229;
+  border: 1px solid #785A28;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #e2e8f0;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: pre-wrap; /* Zachowuje entery z cleanDescription */
+  z-index: 999;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+  pointer-events: none; /* Kursor nie "zacina się" na tooltipie */
+}
+
+/* Strzałka na dole okienka */
+.item-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #12151e transparent transparent transparent;
+}
+
+.item-tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #23293a;
+  padding-bottom: 4px;
+}
+
+.item-tooltip-name {
+  font-weight: bold;
+  color: #38bdf8;
+}
+
+.item-tooltip-gold {
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.item-tooltip-desc {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.game-card {
+  overflow: visible !important;
+}
+
+.game-card-items {
+  overflow: visible !important;
+}
+
+.game-card-item {
+  position: relative !important;
+  overflow: visible !important;
 }
