@@ -1,8 +1,10 @@
 package org.example.service;
 
+import org.example.dto.RecentStatsDto;
 import org.example.model.MatchesDetails;
 import org.example.model.PlayerMatches;
 import org.example.repository.MatchDetailsRepository;
+import org.example.repository.MatchSummaryRepository;
 import org.example.repository.MatchesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +12,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.example.model.MatchSummary;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -21,7 +25,9 @@ public class MatchesService {
 
     private final MatchesRepository matchesRepository;
     private final MatchDetailsRepository matchDetailsRepository;
+    private final MatchSummaryRepository matchSummaryRepository;
     private final RestClient restClient;
+
 
     @Value("${riot.api.region}")
     private String defaultRegion;
@@ -36,13 +42,16 @@ public class MatchesService {
     public MatchesService(
             MatchesRepository matchesRepository,
             MatchDetailsRepository matchDetailsRepository,
+            MatchSummaryRepository matchSummaryRepository,
             @Value("${riot.api.key}") String apiKey
     ) {
         this.matchesRepository = matchesRepository;
         this.matchDetailsRepository = matchDetailsRepository;
+        this.matchSummaryRepository = matchSummaryRepository;
         this.restClient = RestClient.builder()
                 .defaultHeader("X-Riot-Token", apiKey)
                 .build();
+
     }
 
     public PlayerMatches getOrFetchPlayerMatches(String puuid, int count, boolean force) {
@@ -148,5 +157,51 @@ public class MatchesService {
     public PlayerMatches getMatchesFromDb(String puuid) {
         return matchesRepository.findById(puuid)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono meczów w bazie dla danego użytkownika: " + puuid));
+    }
+
+    public record RecentStats(double winRate, double kda) {}
+
+    public RecentStatsDto getStatsLast20Games(String puuid){
+        List<MatchSummary> matches = matchSummaryRepository.findRecentMatchesByPuuid(
+                puuid,
+                PageRequest.of(0, 20)
+        );
+        if (matches == null || matches.isEmpty()) {
+            return new RecentStatsDto(0.0, 0.0);
+        }
+
+        int wins = 0;
+        int totalKills = 0;
+        int totalDeaths = 0;
+        int totalAssists = 0;
+        int countedGames = 0;
+
+        for (MatchSummary match : matches) {
+            MatchSummary.ParticipantStats stats = match.participants().stream()
+                    .filter(p -> puuid.equals(p.puuid()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (stats != null) {
+                countedGames++;
+                if (stats.win()) {
+                    wins++;
+                }
+                totalKills += stats.kills();
+                totalDeaths += stats.deaths();
+                totalAssists += stats.assists();
+            }
+        }
+
+        if (countedGames == 0) {
+            return new RecentStatsDto(0.0, 0.0);
+        }
+
+        double winRate = Math.round(((double) wins / countedGames) * 1000.0) / 10.0;
+        double kda = (totalDeaths == 0)
+                ? (double) (totalKills + totalAssists)
+                : Math.round(((double) (totalKills + totalAssists) / totalDeaths) * 100.0) / 100.0;
+
+        return new RecentStatsDto(winRate, kda);
     }
 }

@@ -178,8 +178,8 @@
 }
 
 .highest-rank {
-    width: 100px;
-    height: 100px;
+    width: 75px;
+    height: 75px;
 }
 
 .profile-highest-rank-details {
@@ -242,4 +242,28 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+}
+
+.profile-20-games-kd.low-kda{
+    color: #FF0000;
+}
+
+.profile-20-games-kd.normal-kda{
+    color: #C89B3C;
+}
+
+.profile-20-games-kd.high-kda{
+    color: #2DEB90;
+}
+
+.profile-20-games-wr.low-winRate{
+    color: #FF0000;
+}
+
+.profile-20-games-wr.normal-winRate{
+    color: #C89B3C;
+}
+
+.profile-20-games-wr.high-winRate{
+    color: #2DEB90;
 }

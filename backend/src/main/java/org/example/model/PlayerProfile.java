@@ -19,5 +19,6 @@ public record PlayerProfile(
     int profileIcon,
     String iconUrl,
     Map<String,LeagueEntry> ranks,
+    LeagueEntry topRank,
     LocalDateTime updatedAt
     ){}

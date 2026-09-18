@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.dto.RecentStatsDto;
 import org.example.model.MatchesDetails;
 import org.example.model.PlayerMatches;
 import org.example.service.MatchesService;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequestMapping("/api/matches")
 public class MatchesController {
     private final MatchesService matchesService;
+
 
 
     public MatchesController(MatchesService matchesService){
@@ -37,4 +39,9 @@ public class MatchesController {
         return ResponseEntity.ok(matchesService.getOrFetchPlayerMatchesWithDetails(puuid, count, force));
     }
 
+    @GetMapping("/{puuid}/recent-stats")
+    public ResponseEntity<RecentStatsDto> getRecentStats(@PathVariable String puuid) {
+        RecentStatsDto stats = matchesService.getStatsLast20Games(puuid);
+        return ResponseEntity.ok(stats);
+    }
 }

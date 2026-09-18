@@ -33,6 +33,7 @@ export interface ProfilInfo {
   profileIcon: number;
   iconUrl: string;
   ranks?: Record<string, RankInfo>;
+  topRank?: RankInfo
   updatedAt?: string;
 }
 

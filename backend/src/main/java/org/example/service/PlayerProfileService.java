@@ -6,6 +6,7 @@ import org.example.dto.RiotDtos.AccountDto;
 import org.example.dto.RiotDtos.SummonerDto;
 import org.example.dto.RiotDtos.LeagueEntryDto;
 import org.example.repository.PlayerRepository;
+import org.example.util.RankEvaluator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,76 +67,92 @@ public class PlayerProfileService {
         return fetchAndSaveFromRiot(profile.gameName(), profile.tagLine());
     }
 
-    private PlayerProfile fetchAndSaveFromRiot(String gameName, String tagLine) {
+        private PlayerProfile fetchAndSaveFromRiot(String gameName, String tagLine) {
 
-        // KROK A: Pobierz PUUID z klastra regionalnego (europe)
-        AccountDto account = restClient.get()
-                .uri("https://{region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}",
-                        defaultRegion, gameName, tagLine)
-                .retrieve()
-                .body(AccountDto.class);
+            // KROK A: Pobierz PUUID z klastra regionalnego (europe)
+            AccountDto account = restClient.get()
+                    .uri("https://{region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}",
+                            defaultRegion, gameName, tagLine)
+                    .retrieve()
+                    .body(AccountDto.class);
 
-        if (account == null || account.puuid() == null) {
-            throw new RuntimeException("Nie znaleziono gracza o podanym Riot ID w Riot API");
+            if (account == null || account.puuid() == null) {
+                throw new RuntimeException("Nie znaleziono gracza o podanym Riot ID w Riot API");
+            }
+
+            // KROK B: Pobierz Level i Ikonę z serwera platformowego (eun1)
+            SummonerDto summoner = restClient.get()
+                    .uri("https://{platform}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}",
+                            defaultPlatform, account.puuid())
+                    .retrieve()
+                    .body(SummonerDto.class);
+
+            if (summoner == null) {
+                throw new RuntimeException("Nie udało się pobrać danych przywoływacza dla PUUID: " + account.puuid());
+            }
+
+            // KROK C: Zbuduj gotowy link do grafiki ikony z CDN Data Dragon
+            String iconUrl = String.format("https://ddragon.leagueoflegends.com/cdn/%s/img/profileicon/%d.png",
+                    ddragonVersion, summoner.profileIconId());
+
+            // Pobranie danych z Riot LEAGUE-V4
+            List<LeagueEntryDto> leagueEntries = restClient.get()
+                    .uri("https://{platform}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}",
+                            defaultPlatform, account.puuid())
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<LeagueEntryDto>>() {});
+
+            // Mapowanie na listę obiektów domenowych
+            List<LeagueEntry> currentEntries = (leagueEntries == null || leagueEntries.isEmpty())
+                    ? Collections.emptyList()
+                    : leagueEntries.stream()
+                    .map(dto -> new LeagueEntry(
+                            dto.queueType(),
+                            dto.tier(),
+                            dto.rank(),
+                            dto.leaguePoints(),
+                            dto.wins(),
+                            dto.losses(),
+                            dto.veteran(),
+                            dto.inactive(),
+                            dto.freshBlood(),
+                            dto.hotStreak()
+                    ))
+                    .toList();
+
+            // Mapowanie pod aktualne rangi (np. do widoku profilu)
+            Map<String, LeagueEntry> ranksMap = currentEntries.stream()
+                    .collect(Collectors.toMap(LeagueEntry::queueType, entry -> entry));
+
+            // KROK C: Pobierz poprzedni profil z bazy i jego dotychczasowy topRank
+            Optional<PlayerProfile> existingProfile = playerRepository.findById(account.puuid());
+            LeagueEntry bestRank = existingProfile
+                    .map(PlayerProfile::topRank)
+                    .orElse(null);
+
+            // KROK D: Porównaj dotychczasowy rekord z każdą obecną rangą (SoloQ i Flex)
+            for (LeagueEntry entry : currentEntries) {
+                if (RankEvaluator.isHigher(entry, bestRank)) {
+                    bestRank = entry;
+                }
+            }
+
+            // KROK E: Zapisz profil z wyznaczonym topRank
+            PlayerProfile profileToSave = new PlayerProfile(
+                    account.puuid(),
+                    account.gameName(),
+                    account.tagLine(),
+                    summoner.summonerLevel(),
+                    summoner.profileIconId(),
+                    iconUrl,
+                    ranksMap,
+                    bestRank,
+                    LocalDateTime.now()
+            );
+
+            // KROK E: Zapisz/Zaktualizuj w MongoDB i zwróć
+            return playerRepository.save(profileToSave);
         }
-
-        // KROK B: Pobierz Level i Ikonę z serwera platformowego (eun1)
-        SummonerDto summoner = restClient.get()
-                .uri("https://{platform}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}",
-                        defaultPlatform, account.puuid())
-                .retrieve()
-                .body(SummonerDto.class);
-
-        if (summoner == null) {
-            throw new RuntimeException("Nie udało się pobrać danych przywoływacza dla PUUID: " + account.puuid());
-        }
-
-        // KROK C: Zbuduj gotowy link do grafiki ikony z CDN Data Dragon
-        String iconUrl = String.format("https://ddragon.leagueoflegends.com/cdn/%s/img/profileicon/%d.png",
-                ddragonVersion, summoner.profileIconId());
-
-        // Pobranie danych z Riot LEAGUE-V4
-        List<LeagueEntryDto> leagueEntries = restClient.get()
-                .uri("https://{platform}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}",
-                        defaultPlatform, account.puuid())
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<LeagueEntryDto>>() {});
-
-        // Mapowanie na Map<String, LeagueEntry>
-        Map<String, LeagueEntry> ranksMap = (leagueEntries == null || leagueEntries.isEmpty())
-                ? Collections.emptyMap()
-                : leagueEntries.stream()
-                .collect(Collectors.toMap(
-                        LeagueEntryDto::queueType,
-                        dto -> new LeagueEntry(
-                                dto.queueType(),
-                                dto.tier(),
-                                dto.rank(),
-                                dto.leaguePoints(),
-                                dto.wins(),
-                                dto.losses(),
-                                dto.veteran(),
-                                dto.inactive(),
-                                dto.freshBlood(),
-                                dto.hotStreak()
-                        )
-                ));
-
-        // KROK D: Stwórz obiekt domenowy
-        PlayerProfile profileToSave = new PlayerProfile(
-                account.puuid(),
-                account.gameName(),
-                account.tagLine(),
-                summoner.summonerLevel(),
-                summoner.profileIconId(),
-                iconUrl,
-                ranksMap,
-                LocalDateTime.now()
-        );
-
-        // KROK E: Zapisz/Zaktualizuj w MongoDB i zwróć
-        return playerRepository.save(profileToSave);
-    }
 
     public String getPuuidFromDatabase(String gameName, String tagLine){
         return playerRepository.findByGameNameIgnoreCaseAndTagLineIgnoreCase(gameName, tagLine)

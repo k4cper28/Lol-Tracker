@@ -204,7 +204,6 @@ const kdaClass =
                     }}
                   />
 
-                  {/* Dymek z opisem – jest rodzeństwem img, a nie dzieckiem */}
                   {hoveredItem?.id === itemId && (
                     <div className="item-tooltip">
                       <div className="item-tooltip-header">
