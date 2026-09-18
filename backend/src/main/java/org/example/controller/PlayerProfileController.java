@@ -6,11 +6,13 @@ import org.example.service.PlayerProfileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
 @RestController
 @RequestMapping("/api/players")
+@CrossOrigin(origins = "*")
 public class PlayerProfileController {
     private final PlayerProfileService playerProfileService;
 
@@ -78,6 +80,13 @@ public class PlayerProfileController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(rank);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PlayerProfile>> searchPlayers(
+            @RequestParam(name = "query", defaultValue = "") String query) {
+        List<PlayerProfile> suggestions = playerProfileService.searchPlayers(query);
+        return ResponseEntity.ok(suggestions);
     }
 
 }

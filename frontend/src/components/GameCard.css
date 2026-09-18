@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:wght@400;500;700&display=swap');
 
+/* GŁÓWNA KARTA MECZU */
 .game-card {
   width: 650px;
   height: 150px; 
@@ -12,10 +13,9 @@
   box-sizing: border-box;
   margin-bottom: 30px;
   font-family: 'Intel One Mono', monospace;
+  overflow: visible !important; /* Pozwala dymkowi wystawać poza kartę */
+  position: relative;
 }
-
-
-
 
 /* LEWA SEKCJA (POSTAĆ, CZARY, RUNY, CZAS) */
 .game-card-left {
@@ -172,6 +172,16 @@
   margin: 0;
 }
 
+.game-card-champion-resault.win-text {
+  color: #2DEB90;
+  text-shadow: 0 0 10px rgba(45, 235, 144, 0.3);
+}
+
+.game-card-champion-resault.loss-text {
+  color: #FF0000;
+  text-shadow: 0 0 10px rgba(232, 64, 87, 0.3);
+}
+
 /* PIONOWE ROZDZIELACZE */
 .game-card-divider {
   width: 1.5px;
@@ -213,17 +223,14 @@
   font-weight: bold;
 }
 
-/* Słabe KDA (< 1.0) - szary / wyblakły czerwonawy */
 .game-card-kda-ratio.low {
   color: #FF0000;
 }
 
-/* Przeciętne KDA (1.0 - 2.5) - biały / jasnoszary */
 .game-card-kda-ratio.normal {
   color: #C89B3C;
 }
 
-/* Dobre KDA (> 2.5 lub Perfect) - intensywna zieleń / złoto */
 .game-card-kda-ratio.high {
   color: #2DEB90;
 }
@@ -243,6 +250,7 @@
   gap: 5px;                               
   align-items: center;
   justify-content: center;
+  overflow: visible !important;
 }
 
 .game-card-item {
@@ -251,18 +259,97 @@
   background-color: #0B1317;          
   border: 1px solid #785A28;
   border-radius: 6px;                     
-  overflow: hidden;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative !important;
+  overflow: visible !important;
 }
 
 .game-card-item img {
   width: 100%;
   height: 100%;
+  border-radius: 5px;
   object-fit: cover;
   display: block;
+}
+
+/* DYMEK PRZEDMIOTU (TOOLTIP) */
+.item-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  background-color: #142229;
+  border: 1px solid #785A28;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #e2e8f0;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  z-index: 9999;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+
+.item-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #785A28 transparent transparent transparent;
+}
+
+.item-tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(120, 90, 40, 0.4);
+  padding-bottom: 4px;
+}
+
+.item-tooltip-name {
+  font-weight: bold;
+  color: #38bdf8;
+}
+
+.item-tooltip-gold {
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.item-tooltip-desc {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+/* Wyróżnienia liczb i statystyk w opisie itemu */
+.item-tooltip-desc .tooltip-val {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.item-tooltip-desc .tooltip-passive {
+  color: #facc15;
+  font-weight: bold;
+}
+
+.item-tooltip-desc .tooltip-ap {
+  color: #a855f7;
+  font-weight: 600;
+}
+
+.item-tooltip-desc .tooltip-ad {
+  color: #f97316;
+  font-weight: 600;
 }
 
 /* LISTA DRUŻYN (5v5) */
@@ -317,7 +404,6 @@
   text-decoration: underline;
 }
 
-/* IKONY POSTACI GRACZY */
 .game-card-player-icon {
   width: 18px;
   height: 18px;
@@ -332,12 +418,10 @@
   box-shadow: none !important;
 }
 
-/* PODŚWIETLENIE IKONY TYLKO I WYŁĄCZNIE PRZY HOVERZE */
 .game-card-player:hover .game-card-player-icon {
   border-color: #C8AA6E !important;
 }
 
-/* BLOKADA ŚWIECENIA PO KLIKNIĘCIU DLA WSZYSTKICH STANÓW INTERAKCJI */
 .game-card-player:focus .game-card-player-icon,
 .game-card-player:focus-visible .game-card-player-icon,
 .game-card-player:active .game-card-player-icon,
@@ -345,7 +429,6 @@
   border-color: #1e282d !important;
 }
 
-/* OPISY GRACZY: LEWA DRUŻYNA */
 .game-card-player-info {
   display: flex;
   flex-direction: column;
@@ -354,7 +437,6 @@
   flex: 1;
 }
 
-/* OPISY GRACZY: PRAWA DRUŻYNA (WYRÓWNANE DO PRAWEJ) */
 .game-card-team-right .game-card-player {
   justify-content: flex-end;
   gap: 6px;
@@ -424,91 +506,84 @@
   transform: rotate(180deg);
 }
 
-.game-card-champion-resault.win-text {
-  color: #2DEB90;
-  text-shadow: 0 0 10px rgba(45, 235, 144, 0.3);
-}
-
-/* Wariant dla przegranej (DEFEAT) */
-.game-card-champion-resault.loss-text {
-  color: #FF0000;
-  text-shadow: 0 0 10px rgba(232, 64, 87, 0.3);
-}
-
-
-
-
-/* Kontener slotu musi być relatywny, żeby dymek wiedział gdzie się zakotwiczyć */
-.game-card-item {
+/* SEARCHBAR WRAPPER (WYŚRODKOWANIE) */
+.search-bar-wrapper {
   position: relative;
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Okienko tooltipa */
-.item-tooltip {
+/* LISTA PODPOWIEDZI SEARCHBARA */
+.search-suggestions-list {
   position: absolute;
-  bottom: calc(100% + 8px); /* Wyświetla się 8px nad slotem */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 240px;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
   background-color: #142229;
   border: 1px solid #785A28;
-  border-radius: 6px;
-  padding: 8px 10px;
-  color: #e2e8f0;
-  font-size: 11px;
-  line-height: 1.4;
-  white-space: pre-wrap; /* Zachowuje entery z cleanDescription */
-  z-index: 999;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
-  pointer-events: none; /* Kursor nie "zacina się" na tooltipie */
+  border-radius: 8px;
+  list-style: none;
+  padding: 6px 0;
+  margin: 0;
+  z-index: 1000;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.8);
 }
 
-/* Strzałka na dole okienka */
-.item-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 5px;
-  border-style: solid;
-  border-color: #12151e transparent transparent transparent;
-}
-
-.item-tooltip-header {
+.search-suggestion-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-  border-bottom: 1px solid #23293a;
-  padding-bottom: 4px;
+  align-items: center; /* Wyśrodkowuje zawartość w pionie względem wysokości wiersza */
+  gap: 12px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
-.item-tooltip-name {
-  font-weight: bold;
-  color: #38bdf8;
+.search-suggestion-item:hover {
+  background-color: #1c2b33;
 }
 
-.item-tooltip-gold {
-  color: #fbbf24;
-  font-weight: 600;
-  font-size: 10px;
+/* Ikona profilu w podpowiedzi - sztywny rozmiar 35px */
+img.profile-avatar-searchBar {
+  width: 35px !important;
+  height: 35px !important;
+  max-width: 35px !important;
+  max-height: 35px !important;
+  min-width: 35px !important;
+  min-height: 35px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #785A28;
+  object-fit: cover;
+  flex-shrink: 0 !important;
+  display: block;
 }
 
-.item-tooltip-desc {
-  color: #94a3b8;
+/* Kontener z ikoną i nazwą - wyśrodkowany pionowo */
+.suggestion-info {
+  flex: 1;
+  display: flex;
+  align-items: center; /* Wyrównuje tekst dokładnie w środku wysokości ikony */
+  gap: 10px;
+}
+
+.suggestion-name {
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.suggestion-tag {
+  color: #CDBE91;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.suggestion-level {
+  color: #A09B8B;
   font-size: 11px;
-}
-
-.game-card {
-  overflow: visible !important;
-}
-
-.game-card-items {
-  overflow: visible !important;
-}
-
-.game-card-item {
-  position: relative !important;
-  overflow: visible !important;
 }

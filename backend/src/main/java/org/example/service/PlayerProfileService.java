@@ -162,4 +162,11 @@ public class PlayerProfileService {
                 .orElse(null);
     }
 
+    public List<PlayerProfile> searchPlayers(String query) {
+        if (query == null || query.trim().length() < 2) {
+            return List.of();
+        }
+        return playerRepository.findTop5ByGameNameStartingWith(query.trim());
+    }
+
 }

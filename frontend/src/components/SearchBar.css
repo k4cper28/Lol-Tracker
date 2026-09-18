@@ -119,3 +119,51 @@
 .search-submit-btn:hover {
   background-color: #C8AA6E80;
 }
+
+.suggestion-info{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.profile-avatar-searchBar {
+  width: 35px;
+  height: 35px;
+  min-width: 35px;   /* Zabezpiecza przed zgniataniem ikony przez długi nick */
+  min-height: 35px;
+  border-radius: 50%;
+  border: 1.5px solid #785A28;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+}
+.suggestion-info {
+  display: flex;
+  align-items: center; /* Wyrównuje ikonę i tekst w pionie */
+  gap: 10px;          /* Odstęp między ikoną a nickiem */
+  flex: 1;
+}
+
+/* W SearchBar.css */
+img.profile-avatar-searchBar {
+  width: 35px !important;
+  height: 35px !important;
+  max-width: 35px !important;
+  max-height: 35px !important;
+  min-width: 35px !important;
+  min-height: 35px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #785A28;
+  object-fit: cover;
+  flex-shrink: 0 !important;
+  display: inline-block;
+}
+
+
+.search-suggestion-item{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
