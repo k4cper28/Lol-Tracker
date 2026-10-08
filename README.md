@@ -1,4 +1,4 @@
-# 🎮 LoL Match Tracker & Analytics
+# 🎮 LoL Match Tracker & Analytics (Riftly)
 
 [![Java](https://img.shields.io/badge/Java-17%2B-orange?logo=openjdk)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-green?logo=springboot)](https://spring.io/projects/spring-boot)
@@ -10,8 +10,8 @@
 
 An event-driven, full-stack application designed to track, aggregate, and analyze League of Legends player performance and match history via the Riot Games API.
 
-> ⚠️ **Status: In Active Development (WIP)**  
-> The core ingestion pipeline, background streaming, and baseline UI are functional. Advanced analytics, match detail breakdowns, and caching layers are currently being rolled out.
+> 🚧 **Status: In Progress / Work in Active Development**  
+> Core ingestion pipeline, event streaming, and baseline UI are functional. Advanced match analytics, charts, and caching layers are currently under active implementation.
 
 ---
 
