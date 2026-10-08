@@ -44,3 +44,19 @@ The system is designed with scalability and decoupled communication in mind:
 ## 🐳 Docker Infrastructure
 
 The required services (Apache Kafka, Zookeeper, MongoDB) run locally via Docker Compose.
+
+---
+
+## 🎨 UI/UX Design (Figma Preview)
+
+Before starting the frontend implementation, the application interface and user experience were fully designed in **Figma**. This helped in mapping the user flows, dashboard layouts, and ensuring an authentic *League of Legends* game-themed visual style.
+
+Here is a preview of the designed dashboards, match analytics, and user interface flows:
+
+<img width="1140" height="640" alt="obraz" src="https://github.com/user-attachments/assets/899f9fc0-c71c-43fa-b52a-3779661d3957" />
+
+<img width="1140" height="640" alt="obraz" src="https://github.com/user-attachments/assets/42da639c-769a-481b-b89f-dcbc438e6d54" />
+
+
+
+
