@@ -49,6 +49,7 @@ export const Profile = () => {
   const [topMasteries, setTopMasteries] = useState<Mastery[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [matchesLoaded, setMatchesLoaded] = useState<boolean>(false);
 
   const handleSearchError = (msg: string) => {
     setSearchError(msg);
@@ -57,6 +58,8 @@ export const Profile = () => {
 
   useEffect(() => {
     if (!playerName || !tagLine) return;
+
+    setMatchesLoaded(false);
 
     let isSubscribed = true;
     setLoading(true);
@@ -132,18 +135,24 @@ export const Profile = () => {
       </header>
 
       <main className="profile-main-content">
-        <ProfileCard masteries={topMasteries} profileInfo={profileInfo} />
+        <ProfileCard 
+          masteries={topMasteries} 
+          profileInfo={profileInfo} 
+          matchesLoaded={matchesLoaded} 
+        />
         <div className='profile-games-info'>
           <div className='profile-game-info-left'>
             <RankCard title="Ranked Solo" rankData={soloRank} />
             <RankCard title="Ranked Flex" rankData={flexRank} />
-            
           </div>
           <div className='profile-game-info-right'>
-            {profileInfo?.puuid && <MatchHistory puuid={profileInfo.puuid} />}
-
+            {profileInfo?.puuid && (
+              <MatchHistory 
+                puuid={profileInfo.puuid} 
+                onMatchesLoaded={() => setMatchesLoaded(true)} 
+              />
+            )}
           </div>
-
         </div>
       </main>
     </div>

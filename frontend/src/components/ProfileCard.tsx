@@ -5,6 +5,7 @@ import type { Mastery, ProfilInfo } from '../pages/Profile';
 interface ProfileCardProps {
   masteries?: Mastery[];
   profileInfo?: ProfilInfo | null;
+  matchesLoaded?: boolean;
 }
 
 interface RecentStats {
@@ -12,53 +13,66 @@ interface RecentStats {
   kda: number;
 }
 
-export const ProfileCard = ({ masteries = [], profileInfo }: ProfileCardProps) => {
+export const ProfileCard = ({ masteries = [], profileInfo, matchesLoaded }: ProfileCardProps) => {
   const [recentStats, setRecentStats] = useState<RecentStats | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (!profileInfo?.puuid) {
-      setRecentStats(null);
-      return;
-    }
+  const fetchRecentStats = async () => {
+    if (!profileInfo?.puuid) return;
 
     setIsLoadingStats(true);
-    fetch(`http://localhost:8080/api/matches/${profileInfo.puuid}/recent-stats`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Błąd podczas pobierania statystyk');
-        return res.json();
-      })
-      .then((data: RecentStats) => {
-        setRecentStats(data);
-      })
-      .catch((err) => {
-        console.error('Nie udało się pobrać statystyk ostatnich 20 gier:', err);
-        setRecentStats(null);
-      })
-      .finally(() => {
-        setIsLoadingStats(false);
-      });
-  }, [profileInfo?.puuid]);
+    try {
+      const res = await fetch(`http://localhost:8080/api/matches/${profileInfo.puuid}/recent-stats`);
+      if (!res.ok) throw new Error('Błąd podczas pobierania statystyk');
+      const data: RecentStats = await res.json();
+      setRecentStats(data);
+    } catch (err) {
+      console.error('Nie udało się pobrać statystyk ostatnich 20 gier:', err);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
+  useEffect(() => {
+    setRecentStats(null);
+    if (!profileInfo?.puuid) return;
+
+    if (matchesLoaded) {
+      fetchRecentStats();
+    }
+  }, [profileInfo?.puuid, matchesLoaded]);
 
   const kda = recentStats?.kda ?? 0;
   const winRate = recentStats?.winRate ?? 0;
 
   const top20KdaClass =
     kda < 1.0
-    ? 'low-kda'
-    : kda <= 2.5
-    ? 'normal-kda'
-    : 'high-kda';
+      ? 'low-kda'
+      : kda <= 2.5
+      ? 'normal-kda'
+      : 'high-kda';
 
-    const top20WinRateClass =
+  const top20WinRateClass =
     winRate < 40
-    ? 'low-winRate'
-    : winRate <= 60
-    ? 'normal-winRate'
-    : 'high-winRate';
+      ? 'low-winRate'
+      : winRate <= 60
+      ? 'normal-winRate'
+      : 'high-winRate';
 
-    
-        
+  const formatLastUpdate = (dateString?: string) => {
+  if (!dateString) return '...';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '...';
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
+};
+
   return (
     <div className="profile-card">
       <div className="profile-mastery-block">
@@ -129,8 +143,11 @@ export const ProfileCard = ({ masteries = [], profileInfo }: ProfileCardProps) =
 
         <span className="profile-20-games">last 20 games:</span>
         <div className="profile-20-games-details">
-          {isLoadingStats ? (
-            <span style={{ color: '#A09B8B', fontSize: '11px' }}>Ładowanie...</span>
+          {!matchesLoaded || isLoadingStats ? (
+            <div className="mini-stats-loader">
+              <div className="mini-spinner"></div>
+              <span>Ładowanie...</span>
+            </div>
           ) : recentStats ? (
             <>
               <span className={`profile-20-games-kd ${top20KdaClass}`}>{recentStats.kda.toFixed(2)} KDA</span>
@@ -143,9 +160,15 @@ export const ProfileCard = ({ masteries = [], profileInfo }: ProfileCardProps) =
       </div>
 
       <div className="reload-button-container">
-        <button className="profile-reload-button" aria-label="zaktualizuj dane">
+        <button 
+          className="profile-reload-button" 
+          aria-label="zaktualizuj dane"
+          onClick={fetchRecentStats}
+        >
           <img src="/refresh.svg" alt="refresh icon" className="refresh-icon" />
         </button>
+        <span className="reload-button-info">last update:</span>
+        <span className="reload-button-info">{formatLastUpdate(profileInfo?.updatedAt)} </span>
       </div>
     </div>
   );

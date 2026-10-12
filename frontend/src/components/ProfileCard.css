@@ -267,3 +267,52 @@
 .profile-20-games-wr.high-winRate{
     color: #2DEB90;
 }
+
+.mini-stats-loader {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mini-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(205, 190, 145, 0.15);
+  border-top-color: #C8AA6E;
+  border-right-color: #2DEB90;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  box-sizing: border-box;
+}
+
+.mini-stats-loader span {
+  font-family: 'Intel One Mono', monospace;
+  font-size: 11px;
+  color: #CDBE91;
+  letter-spacing: 0.5px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.reload-button-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.reload-button-info{
+    font-size: 8px;
+    color: #A09B8B;
+    padding-top: 2px;
+}
+
+.reload-button-date{
+    font-size: 8px;
+    color: #CDBE91;
+    margin-top: 4px;
+}

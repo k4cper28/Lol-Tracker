@@ -85,3 +85,26 @@
   color: #A09B8B;
   font-size: 13px;
 }
+
+.mini-stats-loader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #A09B8B;
+  font-size: 11px;
+}
+
+.mini-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(0, 238, 255, 0.2);
+  border-top-color: #00eeff;
+  border-radius: 50%;
+  animation: mini-spin 0.8s linear infinite;
+}
+
+@keyframes mini-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

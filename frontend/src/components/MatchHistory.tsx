@@ -4,9 +4,10 @@ import './MatchHistory.css';
 
 interface MatchHistoryProps {
   puuid: string;
+  onMatchesLoaded?: () => void;
 }
 
-export const MatchHistory = ({ puuid }: MatchHistoryProps) => {
+export const MatchHistory = ({ puuid, onMatchesLoaded }: MatchHistoryProps) => {
   const [matches, setMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,16 +31,16 @@ export const MatchHistory = ({ puuid }: MatchHistoryProps) => {
 
         if (!isSubscribed) return;
 
-        // Jeśli backend dopiero mieli mecze w tle (jest 0 lub tylko 1 mecz)
         if (list.length < 5 && retryCount < 4) {
           retryTimeoutRef.current = setTimeout(() => {
             if (isSubscribed) fetchMatches(retryCount + 1);
           }, 1500);
-          return; // Nie wyłączamy loading, czekamy na komplet
+          return;
         }
 
         setMatches(list);
         setLoading(false);
+        onMatchesLoaded?.(); 
       } catch (err: any) {
         console.error('Błąd pobierania meczów:', err);
         if (isSubscribed) {
