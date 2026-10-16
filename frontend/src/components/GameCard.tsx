@@ -70,10 +70,22 @@ const formatDescription = (rawText?: string) => {
   const queueId = match.queueId ?? match.info?.queueId ?? 420;
   const queueNames: Record<number, string> = {
     420: 'Ranked Solo',
-    440: 'Ranked Flex',
-    450: 'ARAM',
-    400: 'Normal Draft',
-    430: 'Normal Blind',
+  440: 'Ranked Flex',
+  450: 'ARAM',
+  400: 'Normal Draft',
+  430: 'Normal Blind',
+  480: 'Quickplay',       
+  490: 'Quickplay',       
+  1700: 'Arena',          
+  1710: 'Arena',          
+  1740: 'Arena',
+  1750: 'Arena',
+  1900: 'URF',            
+  900: 'ARURF',          
+  1020: 'One for All',
+  1300: 'Nexus Blitz',
+  700: 'Clash',
+  
   };
   const queueName = queueNames[queueId] || 'Custom / Other';
 

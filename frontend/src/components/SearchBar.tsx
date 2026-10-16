@@ -31,6 +31,19 @@ export const SearchBar = ({ onError }: SearchBarProps) => {
 
   const regions = ['EUNE', 'EUW', 'NA', 'KR'];
 
+  const [ddragonVersion, setDdragonVersion] = useState<string>('14.24.1');
+
+  useEffect(() => {
+    fetch('https://ddragon.leagueoflegends.com/api/versions.json')
+      .then((res) => res.json())
+      .then((versions: string[]) => {
+        if (versions && versions.length > 0) {
+          setDdragonVersion(versions[0]);
+        }
+      })
+      .catch((err) => console.error('Błąd pobierania wersji Data Dragon:', err));
+  }, []);
+
   // Pobieranie podpowiedzi z backendu (debounce 250ms)
   useEffect(() => {
     if (isSelectingRef.current) {
@@ -222,8 +235,8 @@ export const SearchBar = ({ onError }: SearchBarProps) => {
                 <img 
                   src={
                     player?.profileIcon
-                      ? `https://ddragon.leagueoflegends.com/cdn/16.18.1/img/profileicon/${player.profileIcon}.png`
-                      : `https://ddragon.leagueoflegends.com/cdn/16.18.1/img/profileicon/1.png`
+                      ? `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.profileIcon}.png`
+                      : `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/1.png`
                   }
                   alt="Summoner Icon"
                   className="profile-avatar-searchBar"

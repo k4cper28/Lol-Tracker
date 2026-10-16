@@ -16,6 +16,18 @@ interface RecentStats {
 export const ProfileCard = ({ masteries = [], profileInfo, matchesLoaded }: ProfileCardProps) => {
   const [recentStats, setRecentStats] = useState<RecentStats | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState<boolean>(false);
+  const [ddragonVersion, setDdragonVersion] = useState<string>('14.24.1');
+
+  useEffect(() => {
+    fetch('https://ddragon.leagueoflegends.com/api/versions.json')
+      .then((res) => res.json())
+      .then((versions: string[]) => {
+        if (versions && versions.length > 0) {
+          setDdragonVersion(versions[0]);
+        }
+      })
+      .catch((err) => console.error('Błąd pobierania wersji Data Dragon:', err));
+  }, []);
 
   const fetchRecentStats = async () => {
     if (!profileInfo?.puuid) return;
@@ -69,6 +81,7 @@ export const ProfileCard = ({ masteries = [], profileInfo, matchesLoaded }: Prof
   const year = date.getFullYear();
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
+  
 
   return `${day}-${month}-${year} ${hours}:${minutes}`;
 };
@@ -108,8 +121,8 @@ export const ProfileCard = ({ masteries = [], profileInfo, matchesLoaded }: Prof
             <img 
               src={
                 profileInfo?.profileIcon
-                  ? `https://ddragon.leagueoflegends.com/cdn/16.18.1/img/profileicon/${profileInfo.profileIcon}.png`
-                  : `https://ddragon.leagueoflegends.com/cdn/16.18.1/img/profileicon/1.png`
+                  ? `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${profileInfo.profileIcon}.png`
+                  : `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/1.png`
               }
               alt="Summoner Icon"
               className="profile-avatar" 
@@ -168,7 +181,7 @@ export const ProfileCard = ({ masteries = [], profileInfo, matchesLoaded }: Prof
           <img src="/refresh.svg" alt="refresh icon" className="refresh-icon" />
         </button>
         <span className="reload-button-info">last update:</span>
-        <span className="reload-button-info">{formatLastUpdate(profileInfo?.updatedAt)} </span>
+        <span className="reload-button-date">{formatLastUpdate(profileInfo?.updatedAt)}</span>
       </div>
     </div>
   );
