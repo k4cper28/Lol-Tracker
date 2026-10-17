@@ -80,3 +80,48 @@
   justify-content: flex-start;
   gap: 30px;
 }
+
+
+
+.profile-match-history-header {
+  width: 650px;
+  margin-bottom: 12px;
+}
+
+.match-history-tabs {
+  display: flex;
+  gap: 8px;
+  background-color: #0b1317;
+  padding: 4px;
+  border: 1.5px solid #785a28;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.match-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #a09b8b;
+  font-family: 'Intel One Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.match-tab-btn:hover {
+  color: #cdbe91;
+  background-color: rgba(205, 190, 145, 0.08);
+}
+
+.match-tab-btn.active {
+  background-color: #142229;
+  color: #f0e6d2;
+  border: 1px solid #c8aa6e;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}

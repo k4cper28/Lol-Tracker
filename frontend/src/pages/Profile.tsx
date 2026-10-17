@@ -37,6 +37,8 @@ export interface ProfilInfo {
   updatedAt?: string;
 }
 
+export type GameFilter = 'ALL' | 'RANKED_SOLO' | 'RANKED_FLEX' | 'ARENA';
+
 export const Profile = () => {
   const navigate = useNavigate();
   const { playerName, tagLine, region } = useParams<{
@@ -51,6 +53,8 @@ export const Profile = () => {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [matchesLoaded, setMatchesLoaded] = useState<boolean>(false);
 
+  const [activeFilter, setActiveFilter] = useState<GameFilter>('ALL');
+
   const handleSearchError = (msg: string) => {
     setSearchError(msg);
     setTimeout(() => setSearchError(null), 4000);
@@ -64,7 +68,7 @@ export const Profile = () => {
     let isSubscribed = true;
     setLoading(true);
 
-   const fetchPlayerData = async () => {
+    const fetchPlayerData = async () => {
       try {
         // 1. Pobranie całego profilu (zawiera PUUID, dane gracza i mapę rang)
         const profileRes = await fetch(
@@ -72,7 +76,7 @@ export const Profile = () => {
         );
         if (!profileRes.ok) throw new Error('Player not found');
         const profileData = (await profileRes.json()) as ProfilInfo;
-        
+
         if (!isSubscribed) return;
         setProfileInfo(profileData);
 
@@ -80,7 +84,7 @@ export const Profile = () => {
         const masteryRes = await fetch(
           `http://localhost:8080/api/player/mastery/top3/${profileData.puuid}`
         );
-        
+
         if (masteryRes.ok && isSubscribed) {
           const masteryData = (await masteryRes.json()) as Mastery[];
           setTopMasteries(masteryData);
@@ -135,21 +139,55 @@ export const Profile = () => {
       </header>
 
       <main className="profile-main-content">
-        <ProfileCard 
-          masteries={topMasteries} 
-          profileInfo={profileInfo} 
-          matchesLoaded={matchesLoaded} 
+        <ProfileCard
+          masteries={topMasteries}
+          profileInfo={profileInfo}
+          matchesLoaded={matchesLoaded}
         />
         <div className='profile-games-info'>
           <div className='profile-game-info-left'>
             <RankCard title="Ranked Solo" rankData={soloRank} />
             <RankCard title="Ranked Flex" rankData={flexRank} />
           </div>
-          <div className='profile-game-info-right'>
+          <div className="profile-game-info-right">
+            <div className="profile-match-history-header">
+              <div className="match-history-tabs">
+                <button
+                  type="button"
+                  className={`match-tab-btn ${activeFilter === 'ALL' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('ALL')}
+                >
+                  All Games
+                </button>
+                <button
+                  type="button"
+                  className={`match-tab-btn ${activeFilter === 'RANKED_SOLO' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('RANKED_SOLO')}
+                >
+                  Ranked Solo
+                </button>
+                <button
+                  type="button"
+                  className={`match-tab-btn ${activeFilter === 'RANKED_FLEX' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('RANKED_FLEX')}
+                >
+                  Ranked Flex
+                </button>
+                <button
+                  type="button"
+                  className={`match-tab-btn ${activeFilter === 'ARENA' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('ARENA')}
+                >
+                  Arena
+                </button>
+              </div>
+            </div>
+
             {profileInfo?.puuid && (
-              <MatchHistory 
-                puuid={profileInfo.puuid} 
-                onMatchesLoaded={() => setMatchesLoaded(true)} 
+              <MatchHistory
+                puuid={profileInfo.puuid}
+                filter={activeFilter}
+                onMatchesLoaded={() => setMatchesLoaded(true)}
               />
             )}
           </div>

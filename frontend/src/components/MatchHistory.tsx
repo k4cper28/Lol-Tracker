@@ -4,10 +4,11 @@ import './MatchHistory.css';
 
 interface MatchHistoryProps {
   puuid: string;
+  filter?: 'ALL' | 'RANKED_SOLO' | 'RANKED_FLEX' | 'ARENA';
   onMatchesLoaded?: () => void;
 }
 
-export const MatchHistory = ({ puuid, onMatchesLoaded }: MatchHistoryProps) => {
+export const MatchHistory = ({ puuid, filter = 'ALL', onMatchesLoaded }: MatchHistoryProps) => {
   const [matches, setMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,14 +18,14 @@ export const MatchHistory = ({ puuid, onMatchesLoaded }: MatchHistoryProps) => {
     let isSubscribed = true;
     setLoading(true);
     setError(null);
-    setMatches([]); // Czyścimy poprzednie mecze przy zmianie gracza
+    setMatches([]); // Clear matches on player change
 
     const fetchMatches = async (retryCount = 0) => {
       try {
         const res = await fetch(
           `http://localhost:8080/api/matches/player/${encodeURIComponent(puuid)}?page=0&size=20`
         );
-        if (!res.ok) throw new Error(`Błąd HTTP ${res.status}: ${res.statusText}`);
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}: ${res.statusText}`);
 
         const data = await res.json();
         const list = data?.content ?? [];
@@ -40,9 +41,9 @@ export const MatchHistory = ({ puuid, onMatchesLoaded }: MatchHistoryProps) => {
 
         setMatches(list);
         setLoading(false);
-        onMatchesLoaded?.(); 
+        onMatchesLoaded?.();
       } catch (err: any) {
-        console.error('Błąd pobierania meczów:', err);
+        console.error('Failed to fetch matches:', err);
         if (isSubscribed) {
           setError(err.message);
           setLoading(false);
@@ -58,32 +59,45 @@ export const MatchHistory = ({ puuid, onMatchesLoaded }: MatchHistoryProps) => {
     };
   }, [puuid]);
 
+  // Filtering matches based on selected tab:
+  const filteredMatches = matches.filter((m) => {
+    const qId = m.queueId ?? m.info?.queueId;
+    if (filter === 'RANKED_SOLO') return qId === 420;
+    if (filter === 'RANKED_FLEX') return qId === 440;
+    if (filter === 'ARENA') return [1700, 1710, 1740, 1750].includes(qId);
+    return true; // 'ALL'
+  });
+
   if (loading) {
     return (
       <div className="matches-loader-container">
         <div className="hextech-spinner"></div>
-        <p className="matches-loader-text">Pobieranie i przetwarzanie historii gier...</p>
+        <p className="matches-loader-text">Loading match history...</p>
       </div>
     );
   }
 
   if (error) {
-    return <div className="matches-error">Błąd: {error}</div>;
+    return <div className="matches-error">Error: {error}</div>;
   }
 
   if (matches.length === 0) {
-    return <div className="matches-empty">Brak historii meczów dla tego gracza.</div>;
+    return <div className="matches-empty">No match history found for this summoner.</div>;
   }
 
   return (
     <div className="match-history-list">
-      {matches.map((matchDoc, index) => (
-        <GameCard 
-          key={matchDoc.matchId ?? matchDoc._id ?? index} 
-          match={matchDoc} 
-          currentPuuid={puuid} 
-        />
-      ))}
+      {filteredMatches.length === 0 ? (
+        <div className="matches-empty">No matches found for the selected mode.</div>
+      ) : (
+        filteredMatches.map((matchDoc, index) => (
+          <GameCard
+            key={matchDoc.matchId ?? matchDoc._id ?? index}
+            match={matchDoc}
+            currentPuuid={puuid}
+          />
+        ))
+      )}
     </div>
   );
 };
