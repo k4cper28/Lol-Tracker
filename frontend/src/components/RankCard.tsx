@@ -56,7 +56,7 @@ export const RankCard = ({ title, rankData }: RankCardProps) => {
 
         <div className="rank-card-stats">
           <span className="rank-card-info-win-lose">{wins}W {losses}L</span>
-          <span className="rank-card-info-wr">{winRatio} WR</span>
+          <span className="rank-card-info-wr">{winRatio}% WR</span>
         </div>
       </div>
     </div>

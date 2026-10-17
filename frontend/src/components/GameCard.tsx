@@ -2,45 +2,87 @@ import './GameCard.css';
 import { Link } from 'react-router-dom';
 import { useItems, type SimpleItem } from '../types/useItems';
 import { useState } from 'react';
+import { useSpells, type SimpleSpell } from '../types/useSpells';
+import { useRunes, type SimpleRune } from '../types/useRunes';
 
 interface GameCardProps {
   match?: any;
   currentPuuid?: string;
 }
 
+export const SUMMONER_SPELLS: Record<number, { name: string; icon: string }> = {
+  1: { name: 'Cleanse', icon: 'SummonerBoost' },
+  3: { name: 'Exhaust', icon: 'SummonerExhaust' },
+  4: { name: 'Flash', icon: 'SummonerFlash' },
+  6: { name: 'Ghost', icon: 'SummonerHaste' },
+  7: { name: 'Heal', icon: 'SummonerHeal' },
+  11: { name: 'Smite', icon: 'SummonerSmite' },
+  12: { name: 'Teleport', icon: 'SummonerTeleport' },
+  13: { name: 'Clarity', icon: 'SummonerMana' },
+  14: { name: 'Ignite', icon: 'SummonerDot' },
+  21: { name: 'Barrier', icon: 'SummonerBarrier' },
+  30: { name: 'To the King!', icon: 'SummonerPoroRecall' },
+  31: { name: 'Poro Toss', icon: 'SummonerPoroThrow' },
+  32: { name: 'Snowball', icon: 'SummonerSnowball' },
+  39: { name: 'Mark', icon: 'SummonerSnowURFSnowball_Mark' },
+  2201: { name: 'Flee', icon: 'cherry_flee' },
+  2202: { name: 'Flash', icon: 'SummonerFlash' },
+};
+
+const getSpellIconUrl = (spellId: number, version: string) => {
+  if (spellId === 2201) {
+    return '/spells/flee.png';
+  }
+
+  if (spellId === 2202) {
+    return `https://ddragon.leagueoflegends.com/cdn/${version}/img/spell/SummonerFlash.png`;
+  }
+
+  const spell = SUMMONER_SPELLS[spellId];
+  if (spell) {
+    return `https://ddragon.leagueoflegends.com/cdn/${version}/img/spell/${spell.icon}.png`;
+  }
+
+  return `https://ddragon.leagueoflegends.com/cdn/${version}/img/spell/SummonerFlash.png`;
+};
 
 export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
   if (!match) return null;
-  
+
   const rawGameVersion = match.gameVersion;
   const patch = rawGameVersion ? rawGameVersion.split('.').slice(0, 2).join('.') : '16.18';
   const DDRAGON_VERSION = `${patch}.1`;
 
   const itemsDict = useItems(patch);
+  const spellsDict = useSpells(patch);
+  const { trees: runeTrees, runes: allRunes } = useRunes(patch);
+
   const [hoveredItem, setHoveredItem] = useState<{ id: number; data?: SimpleItem } | null>(null);
+  const [hoveredSpell, setHoveredSpell] = useState<{ id: number; data?: SimpleSpell } | null>(null);
+  const [hoveredRune, setHoveredRune] = useState<{ id: number; data?: SimpleRune } | null>(null);
 
   const region = match.platformId ?? 'EUNE';
 
   const formatRelativeTime = (timestamp?: number): string => {
-  if (!timestamp) return 'Brak daty';
+    if (!timestamp) return 'Brak daty';
 
-  const now = Date.now();
-  const diffMs = now - timestamp;
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHours = Math.floor(diffMin / 60);
-  const diffDays = Math.floor(diffHours / 24);
+    const now = Date.now();
+    const diffMs = now - timestamp;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHours = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHours / 24);
 
-  if (diffMin < 1) return 'Przed chwilą';
-  if (diffMin < 60) return `${diffMin} min temu`;
-  if (diffHours < 24) return `${diffHours} godz. temu`;
-  if (diffDays === 1) return 'Wczoraj';
-  if (diffDays < 30) return `${diffDays} dni temu`;
-  
-  return new Date(timestamp).toLocaleDateString('pl-PL');
-};
+    if (diffMin < 1) return 'Przed chwilą';
+    if (diffMin < 60) return `${diffMin} min temu`;
+    if (diffHours < 24) return `${diffHours} godz. temu`;
+    if (diffDays === 1) return 'Wczoraj';
+    if (diffDays < 30) return `${diffDays} dni temu`;
 
-const formatDescription = (rawText?: string) => {
+    return new Date(timestamp).toLocaleDateString('pl-PL');
+  };
+
+  const formatDescription = (rawText?: string) => {
     if (!rawText) return 'Brak opisu.';
     return rawText
       .replace(/<br\s*[\/]?>/gi, '\n')
@@ -51,7 +93,6 @@ const formatDescription = (rawText?: string) => {
   // 1. Obsługa danych gracza – z listy participants
   const participantsList = match.info?.participants || match.participants;
   const isMatchSummary = Array.isArray(participantsList);
-
 
   const me = isMatchSummary
     ? participantsList.find((p: any) => p.puuid?.toLowerCase() === currentPuuid?.toLowerCase()) || participantsList[0]
@@ -70,24 +111,36 @@ const formatDescription = (rawText?: string) => {
   const queueId = match.queueId ?? match.info?.queueId ?? 420;
   const queueNames: Record<number, string> = {
     420: 'Ranked Solo',
-  440: 'Ranked Flex',
-  450: 'ARAM',
-  400: 'Normal Draft',
-  430: 'Normal Blind',
-  480: 'Quickplay',       
-  490: 'Quickplay',       
-  1700: 'Arena',          
-  1710: 'Arena',          
-  1740: 'Arena',
-  1750: 'Arena',
-  1900: 'URF',            
-  900: 'ARURF',          
-  1020: 'One for All',
-  1300: 'Nexus Blitz',
-  700: 'Clash',
-  
+    440: 'Ranked Flex',
+    450: 'ARAM',
+    400: 'Normal Draft',
+    430: 'Normal Blind',
+    480: 'Quickplay',
+    490: 'Quickplay',
+    1700: 'Arena',
+    1710: 'Arena',
+    1740: 'Arena',
+    1750: 'Arena',
+    1900: 'URF',
+    900: 'ARURF',
+    1020: 'One for All',
+    1300: 'Nexus Blitz',
+    700: 'Clash',
   };
   const queueName = queueNames[queueId] || 'Custom / Other';
+
+  const spell1Id = me.summoner1Id ?? 4;
+  const spell2Id = me.summoner2Id ?? 14;
+
+  const spell1Data = spellsDict[spell1Id.toString()];
+  const spell2Data = spellsDict[spell2Id.toString()];
+
+  // Runy odczytywane z perks gracza
+  const keystoneId = me.perks?.primaryPerks?.[0] ?? me.primaryPerks?.[0] ?? 8010;
+  const subStyleId = me.perks?.subStyleId ?? me.subStyleId ?? 8200;
+
+  const keystoneData = allRunes[keystoneId];
+  const subStyleData = runeTrees[subStyleId];
 
   // 4. Statystyki bojowe
   const kills = me.kills ?? 0;
@@ -100,12 +153,12 @@ const formatDescription = (rawText?: string) => {
 
   const numericKda = deaths === 0 ? 999 : (kills + assists) / deaths;
 
-const kdaClass =
-  numericKda < 1.0
-    ? 'low'
-    : numericKda <= 2.5
-    ? 'normal'
-    : 'high';
+  const kdaClass =
+    numericKda < 1.0
+      ? 'low'
+      : numericKda <= 2.5
+        ? 'normal'
+        : 'high';
 
   // 5. Przedmioty w kolejności: 0, 1, 2, questId, 3, 4, 5, 6
   const rawItems: number[] = Array.isArray(me.items) ? me.items : [];
@@ -145,32 +198,136 @@ const kdaClass =
           </div>
 
           <div className="game-card-summoner-spells">
-            <div className="game-card-summoner-spell">
+            {/* Czar 1 */}
+            <div
+              className="game-card-summoner-spell"
+              onMouseEnter={() => setHoveredSpell({ id: spell1Id, data: spell1Data })}
+              onMouseLeave={() => setHoveredSpell(null)}
+            >
               <img
-                src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/spell/SummonerFlash.png`}
-                alt="Summoner Spell 1"
+                src={
+                  spell1Id === 2201
+                    ? '/spells/flee.png'
+                    : `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/spell/${spell1Data?.image || 'SummonerFlash.png'}`
+                }
+                alt={spell1Data?.name || `Spell ${spell1Id}`}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/spell/SummonerFlash.png`;
+                }}
               />
+
+              {hoveredSpell?.id === spell1Id && (
+                <div className="spell-tooltip">
+                  <div className="item-tooltip-header">
+                    <span className="item-tooltip-name">
+                      {spell1Data?.name || `Spell #${spell1Id}`}
+                    </span>
+                    {spell1Data?.cooldown ? (
+                      <span className="item-tooltip-gold">{spell1Data.cooldown}s CD</span>
+                    ) : null}
+                  </div>
+                  <div className="item-tooltip-desc">
+                    {formatDescription(spell1Data?.description)}
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="game-card-summoner-spell">
+
+            {/* Czar 2 */}
+            <div
+              className="game-card-summoner-spell"
+              onMouseEnter={() => setHoveredSpell({ id: spell2Id, data: spell2Data })}
+              onMouseLeave={() => setHoveredSpell(null)}
+            >
               <img
-                src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/spell/SummonerDot.png`}
-                alt="Summoner Spell 2"
+                src={
+                  spell2Id === 2201
+                    ? '/spells/flee.png'
+                    : `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/spell/${spell2Data?.image || 'SummonerDot.png'}`
+                }
+                alt={spell2Data?.name || `Spell ${spell2Id}`}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/spell/SummonerFlash.png`;
+                }}
               />
+
+              {hoveredSpell?.id === spell2Id && (
+                <div className="spell-tooltip">
+                  <div className="item-tooltip-header">
+                    <span className="item-tooltip-name">
+                      {spell2Data?.name || `Spell #${spell2Id}`}
+                    </span>
+                    {spell2Data?.cooldown ? (
+                      <span className="item-tooltip-gold">{spell2Data.cooldown}s CD</span>
+                    ) : null}
+                  </div>
+                  <div className="item-tooltip-desc">
+                    {formatDescription(spell2Data?.description)}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="game-card-champion-runes">
-            <div className="game-card-rune">
+            {/* Górne kółko: Runa kluczowa (Keystone) */}
+            <div
+              className="game-card-rune"
+              onMouseEnter={() => setHoveredRune({ id: keystoneId, data: keystoneData })}
+              onMouseLeave={() => setHoveredRune(null)}
+            >
               <img
-                src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7201_Precision.png"
-                alt="Primary Rune"
+                src={
+                  keystoneData?.icon
+                    ? `https://ddragon.leagueoflegends.com/cdn/img/${keystoneData.icon}`
+                    : 'https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7201_Precision.png'
+                }
+                alt={keystoneData?.name || `Keystone #${keystoneId}`}
               />
+
+              {hoveredRune?.id === keystoneId && (
+                <div className="spell-tooltip">
+                  <div className="item-tooltip-header">
+                    <span className="item-tooltip-name">
+                      {keystoneData?.name || `Keystone #${keystoneId}`}
+                    </span>
+                    <span className="item-tooltip-gold">Keystone</span>
+                  </div>
+                  <div className="item-tooltip-desc">
+                    {formatDescription(keystoneData?.shortDesc || keystoneData?.longDesc)}
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="game-card-rune">
+
+            {/* Dolne kółko: Drzewko podrzędne (Secondary Path) */}
+            <div
+              className="game-card-rune"
+              onMouseEnter={() => setHoveredRune({ id: subStyleId, data: subStyleData })}
+              onMouseLeave={() => setHoveredRune(null)}
+            >
               <img
-                src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7200_Domination.png"
-                alt="Sub Rune"
+                src={
+                  subStyleData?.icon
+                    ? `https://ddragon.leagueoflegends.com/cdn/img/${subStyleData.icon}`
+                    : 'https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7200_Domination.png'
+                }
+                alt={subStyleData?.name || `SubStyle #${subStyleId}`}
               />
+
+              {hoveredRune?.id === subStyleId && (
+                <div className="spell-tooltip">
+                  <div className="item-tooltip-header">
+                    <span className="item-tooltip-name">
+                      {subStyleData?.name || `Tree #${subStyleId}`}
+                    </span>
+                    <span className="item-tooltip-gold">Secondary Tree</span>
+                  </div>
+                  <div className="item-tooltip-desc">
+                    Secondary rune path selected for this match.
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -211,7 +368,6 @@ const kdaClass =
                     src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/item/${itemId}.png`}
                     alt={`Item ${itemId}`}
                     onError={(e) => {
-                      // Fallback na CommunityDragon
                       (e.target as HTMLImageElement).src = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/item-icons/${itemId}.png`;
                     }}
                   />
@@ -228,8 +384,8 @@ const kdaClass =
                       </div>
 
                       {itemData?.gold !== undefined && (
-                          <span className="item-tooltip-gold">{itemData.gold} G</span>
-                        )}
+                        <span className="item-tooltip-gold">{itemData.gold} G</span>
+                      )}
                     </div>
                   )}
                 </>
@@ -255,7 +411,7 @@ const kdaClass =
                   to={playerUrl}
                   key={p.puuid ?? idx}
                   className="game-card-player"
-                  title={`Zobacz profil ${name}#${tag}`}
+                  title={`show profile: ${name}#${tag}`}
                 >
                   <img
                     src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/${p.championName}.png`}
@@ -316,7 +472,6 @@ const kdaClass =
       <button className="game-card-expand-btn" aria-label="Rozwiń szczegóły">
         <span className="game-card-expand-arrow" />
       </button>
-      
     </div>
   );
 };
