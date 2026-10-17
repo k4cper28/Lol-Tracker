@@ -45,6 +45,7 @@ public class MatchAnalyticsConsumer {
         Map<String, Object> info = rawMatch.info();
 
         int queueId = getInt(info, "queueId");
+        boolean isArena = (queueId == 1700 || queueId == 1710 || queueId == 1740 || queueId == 1750);
         long gameDuration = getLong(info, "gameDuration");
         long gameEndTimestamp = getLong(info, "gameEndTimestamp");
         String gameVersion = getString(info, "gameVersion");
@@ -77,9 +78,27 @@ public class MatchAnalyticsConsumer {
                         getInt(p, "item6")
                 );
 
-                int cs = getInt(p, "totalMinionsKilled") + getInt(p, "neutralMinionsKilled");
+                int cs = isArena ? 0 : (getInt(p, "totalMinionsKilled") + getInt(p, "neutralMinionsKilled"));
+                int visionScore = isArena ? 0 : getInt(p, "visionScore");
+                int wardsPlaced = isArena ? 0 : getInt(p, "wardsPlaced");
+                int turretKills = isArena ? 0 : getInt(p, "turretKills");
+                MatchSummary.PlayerRunes playerRunes = isArena ? null : extractRunes(p);
 
-                MatchSummary.PlayerRunes playerRunes = extractRunes(p);
+                Integer placement = null;
+                Integer playerSubteamId = null;
+                List<Integer> augments = null;
+
+                if (isArena) {
+                    int subPlacement = getInt(p, "subteamPlacement");
+                    placement = subPlacement > 0 ? subPlacement : getInt(p, "placement");
+                    playerSubteamId = getInt(p, "playerSubteamId");
+                    augments = extractAugments(p);
+                }
+
+                // Na Arenie wygrana to Top 4 (miejsca 1-4)
+                boolean win = isArena
+                        ? (placement != null && placement <= 4)
+                        : getBoolean(p, "win");
 
                 MatchSummary.ParticipantStats stats = new MatchSummary.ParticipantStats(
                         getString(p, "puuid"),
@@ -94,11 +113,11 @@ public class MatchAnalyticsConsumer {
                         deaths,
                         assists,
                         kda,
-                        getInt(p, "visionScore"),
-                        getInt(p, "wardsPlaced"),
+                        visionScore,
+                        wardsPlaced,
                         getInt(p, "goldEarned"),
                         items,
-                        getInt(p,"roleBoundItem"),
+                        getInt(p, "roleBoundItem"),
                         getInt(p, "totalDamageDealtToChampions"),
                         getInt(p, "magicDamageDealtToChampions"),
                         getInt(p, "physicalDamageDealtToChampions"),
@@ -107,15 +126,18 @@ public class MatchAnalyticsConsumer {
                         getInt(p, "physicalDamageDealt"),
                         cs,
                         getInt(p, "neutralMinionsKilled"),
-                        getInt(p, "turretKills"),
+                        turretKills,
                         getInt(p, "totalHeal"),
                         getInt(p, "totalDamageTaken"),
                         getInt(p, "summoner1Id"),
                         getInt(p, "summoner2Id"),
                         getBoolean(p, "firstBloodKill"),
                         getBoolean(p, "firstTowerKill"),
-                        getBoolean(p, "win"),
-                        playerRunes
+                        win,
+                        playerRunes,
+                        placement,
+                        playerSubteamId,
+                        augments
                 );
 
                 participants.add(stats);
@@ -127,7 +149,7 @@ public class MatchAnalyticsConsumer {
 
 
 
-        if (rawTeams != null) {
+        if (!isArena && rawTeams != null) {
             for (Map<String, Object> t : rawTeams){
 
                 Map<String, Object> objectives = (Map<String, Object>) t.get("objectives");
@@ -314,5 +336,16 @@ public class MatchAnalyticsConsumer {
             kafkaTemplate.send("ddragon-version-sync", patch, patch );
             System.out.println("-> Wysłano żądanie pobrania itemów dla patcha: " + patch);
         }
+    }
+
+    private List<Integer> extractAugments(Map<String, Object> p) {
+        List<Integer> augments = new ArrayList<>();
+        for (int i = 1; i <= 6; i++) {
+            int aug = getInt(p, "playerAugment" + i);
+            if (aug > 0) {
+                augments.add(aug);
+            }
+        }
+        return augments;
     }
 }

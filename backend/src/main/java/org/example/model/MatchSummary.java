@@ -54,7 +54,10 @@ public record MatchSummary(
         boolean firstBlood,
         boolean firstTower,
         boolean win,
-        PlayerRunes perks
+        PlayerRunes perks,
+        Integer placement,
+        Integer playerSubteamId,
+        List<Integer> augments
     )
     {}
 
