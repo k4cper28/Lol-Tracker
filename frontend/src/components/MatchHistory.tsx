@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import GameCard from './GameCard';
 import './MatchHistory.css';
+import { ArenaGameCard } from './ArenaGameCard';
 
 interface MatchHistoryProps {
   puuid: string;
@@ -90,13 +91,24 @@ export const MatchHistory = ({ puuid, filter = 'ALL', onMatchesLoaded }: MatchHi
       {filteredMatches.length === 0 ? (
         <div className="matches-empty">No matches found for the selected mode.</div>
       ) : (
-        filteredMatches.map((matchDoc, index) => (
-          <GameCard
-            key={matchDoc.matchId ?? matchDoc._id ?? index}
-            match={matchDoc}
-            currentPuuid={puuid}
-          />
-        ))
+        filteredMatches.map((matchDoc, index) => {
+          const queueId = matchDoc.queueId ?? matchDoc.info?.queueId;
+          const isArena = [1700, 1710, 1740, 1750].includes(queueId);
+
+          return isArena ? (
+            <ArenaGameCard
+              key={matchDoc.matchId ?? matchDoc._id ?? index}
+              match={matchDoc}
+              currentPuuid={puuid}
+            />
+          ) : (
+            <GameCard
+              key={matchDoc.matchId ?? matchDoc._id ?? index}
+              match={matchDoc}
+              currentPuuid={puuid}
+            />
+          );
+        })
       )}
     </div>
   );

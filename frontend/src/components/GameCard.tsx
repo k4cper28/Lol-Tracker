@@ -4,6 +4,7 @@ import { useItems, type SimpleItem } from '../types/useItems';
 import { useState } from 'react';
 import { useSpells, type SimpleSpell } from '../types/useSpells';
 import { useRunes, type SimpleRune } from '../types/useRunes';
+import { formatRelativeTime, formatDescription, getQueueName } from '../utils/matchUtils';
 
 interface GameCardProps {
   match?: any;
@@ -29,22 +30,13 @@ export const SUMMONER_SPELLS: Record<number, { name: string; icon: string }> = {
   2202: { name: 'Flash', icon: 'SummonerFlash' },
 };
 
-const getSpellIconUrl = (spellId: number, version: string) => {
-  if (spellId === 2201) {
-    return '/spells/flee.png';
-  }
-
-  if (spellId === 2202) {
-    return `https://ddragon.leagueoflegends.com/cdn/${version}/img/spell/SummonerFlash.png`;
-  }
-
-  const spell = SUMMONER_SPELLS[spellId];
-  if (spell) {
-    return `https://ddragon.leagueoflegends.com/cdn/${version}/img/spell/${spell.icon}.png`;
-  }
-
-  return `https://ddragon.leagueoflegends.com/cdn/${version}/img/spell/SummonerFlash.png`;
-};
+const LANE_ROLES = [
+  { key: 'top', icon: '/role/top.png', label: 'TOP' },
+  { key: 'jg', icon: '/role/jg.png', label: 'JUNGLE' },
+  { key: 'mid', icon: '/role/mid.png', label: 'MID' },
+  { key: 'adc', icon: '/role/adc.png', label: 'ADC' },
+  { key: 'supp', icon: '/role/supp.png', label: 'SUPPORT' },
+];
 
 export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
   if (!match) return null;
@@ -63,34 +55,6 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
 
   const region = match.platformId ?? 'EUNE';
 
-  const formatRelativeTime = (timestamp?: number): string => {
-    if (!timestamp) return 'Brak daty';
-
-    const now = Date.now();
-    const diffMs = now - timestamp;
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHours = Math.floor(diffMin / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMin < 1) return 'Przed chwilą';
-    if (diffMin < 60) return `${diffMin} min temu`;
-    if (diffHours < 24) return `${diffHours} godz. temu`;
-    if (diffDays === 1) return 'Wczoraj';
-    if (diffDays < 30) return `${diffDays} dni temu`;
-
-    return new Date(timestamp).toLocaleDateString('pl-PL');
-  };
-
-  const formatDescription = (rawText?: string) => {
-    if (!rawText) return 'Brak opisu.';
-    return rawText
-      .replace(/<br\s*[\/]?>/gi, '\n')
-      .replace(/<[^>]+>/g, '')
-      .trim();
-  };
-
-  // 1. Obsługa danych gracza – z listy participants
   const participantsList = match.info?.participants || match.participants;
   const isMatchSummary = Array.isArray(participantsList);
 
@@ -100,49 +64,25 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
 
   if (!me) return null;
 
-  // 2. Formatowanie czasu trwania
   const durationSec = match.gameDuration ?? match.info?.gameDuration ?? me.gameDuration ?? 0;
   const durationCleanSec = durationSec > 10000 ? Math.floor(durationSec / 1000) : durationSec;
   const min = Math.floor(durationCleanSec / 60);
   const sec = Math.floor(durationCleanSec % 60);
   const formattedDuration = `${min}:${sec < 10 ? '0' : ''}${sec}`;
 
-  // 3. Typ kolejki
   const queueId = match.queueId ?? match.info?.queueId ?? 420;
-  const queueNames: Record<number, string> = {
-    420: 'Ranked Solo',
-    440: 'Ranked Flex',
-    450: 'ARAM',
-    400: 'Normal Draft',
-    430: 'Normal Blind',
-    480: 'Quickplay',
-    490: 'Quickplay',
-    1700: 'Arena',
-    1710: 'Arena',
-    1740: 'Arena',
-    1750: 'Arena',
-    1900: 'URF',
-    900: 'ARURF',
-    1020: 'One for All',
-    1300: 'Nexus Blitz',
-    700: 'Clash',
-  };
-  const queueName = queueNames[queueId] || 'Custom / Other';
+  const queueName = getQueueName(queueId);
 
   const spell1Id = me.summoner1Id ?? 4;
   const spell2Id = me.summoner2Id ?? 14;
-
   const spell1Data = spellsDict[spell1Id.toString()];
   const spell2Data = spellsDict[spell2Id.toString()];
 
-  // Runy odczytywane z perks gracza
   const keystoneId = me.perks?.primaryPerks?.[0] ?? me.primaryPerks?.[0] ?? 8010;
   const subStyleId = me.perks?.subStyleId ?? me.subStyleId ?? 8200;
-
   const keystoneData = allRunes[keystoneId];
   const subStyleData = runeTrees[subStyleId];
 
-  // 4. Statystyki bojowe
   const kills = me.kills ?? 0;
   const deaths = me.deaths ?? 0;
   const assists = me.assists ?? 0;
@@ -152,15 +92,8 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
   const isWin = Boolean(me.win);
 
   const numericKda = deaths === 0 ? 999 : (kills + assists) / deaths;
+  const kdaClass = numericKda < 1.0 ? 'low' : numericKda <= 2.5 ? 'normal' : 'high';
 
-  const kdaClass =
-    numericKda < 1.0
-      ? 'low'
-      : numericKda <= 2.5
-        ? 'normal'
-        : 'high';
-
-  // 5. Przedmioty w kolejności: 0, 1, 2, questId, 3, 4, 5, 6
   const rawItems: number[] = Array.isArray(me.items) ? me.items : [];
   const items: number[] = [
     rawItems[0] ?? me.item0 ?? 0,
@@ -173,7 +106,6 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
     rawItems[6] ?? me.item6 ?? 0,
   ];
 
-  // 6. Drużyny 5v5
   const allParticipants = isMatchSummary ? participantsList : [];
   const team100 = allParticipants.filter((p: any) => p.teamId === 100);
   const team200 = allParticipants.filter((p: any) => p.teamId === 200);
@@ -198,7 +130,6 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
           </div>
 
           <div className="game-card-summoner-spells">
-            {/* Czar 1 */}
             <div
               className="game-card-summoner-spell"
               onMouseEnter={() => setHoveredSpell({ id: spell1Id, data: spell1Data })}
@@ -215,25 +146,17 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
                   (e.target as HTMLImageElement).src = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/spell/SummonerFlash.png`;
                 }}
               />
-
               {hoveredSpell?.id === spell1Id && (
                 <div className="spell-tooltip">
                   <div className="item-tooltip-header">
-                    <span className="item-tooltip-name">
-                      {spell1Data?.name || `Spell #${spell1Id}`}
-                    </span>
-                    {spell1Data?.cooldown ? (
-                      <span className="item-tooltip-gold">{spell1Data.cooldown}s CD</span>
-                    ) : null}
+                    <span className="item-tooltip-name">{spell1Data?.name || `Spell #${spell1Id}`}</span>
+                    {spell1Data?.cooldown ? <span className="item-tooltip-gold">{spell1Data.cooldown}s CD</span> : null}
                   </div>
-                  <div className="item-tooltip-desc">
-                    {formatDescription(spell1Data?.description)}
-                  </div>
+                  <div className="item-tooltip-desc">{formatDescription(spell1Data?.description)}</div>
                 </div>
               )}
             </div>
 
-            {/* Czar 2 */}
             <div
               className="game-card-summoner-spell"
               onMouseEnter={() => setHoveredSpell({ id: spell2Id, data: spell2Data })}
@@ -250,27 +173,19 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
                   (e.target as HTMLImageElement).src = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/spell/SummonerFlash.png`;
                 }}
               />
-
               {hoveredSpell?.id === spell2Id && (
                 <div className="spell-tooltip">
                   <div className="item-tooltip-header">
-                    <span className="item-tooltip-name">
-                      {spell2Data?.name || `Spell #${spell2Id}`}
-                    </span>
-                    {spell2Data?.cooldown ? (
-                      <span className="item-tooltip-gold">{spell2Data.cooldown}s CD</span>
-                    ) : null}
+                    <span className="item-tooltip-name">{spell2Data?.name || `Spell #${spell2Id}`}</span>
+                    {spell2Data?.cooldown ? <span className="item-tooltip-gold">{spell2Data.cooldown}s CD</span> : null}
                   </div>
-                  <div className="item-tooltip-desc">
-                    {formatDescription(spell2Data?.description)}
-                  </div>
+                  <div className="item-tooltip-desc">{formatDescription(spell2Data?.description)}</div>
                 </div>
               )}
             </div>
           </div>
 
           <div className="game-card-champion-runes">
-            {/* Górne kółko: Runa kluczowa (Keystone) */}
             <div
               className="game-card-rune"
               onMouseEnter={() => setHoveredRune({ id: keystoneId, data: keystoneData })}
@@ -284,13 +199,10 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
                 }
                 alt={keystoneData?.name || `Keystone #${keystoneId}`}
               />
-
               {hoveredRune?.id === keystoneId && (
                 <div className="spell-tooltip">
                   <div className="item-tooltip-header">
-                    <span className="item-tooltip-name">
-                      {keystoneData?.name || `Keystone #${keystoneId}`}
-                    </span>
+                    <span className="item-tooltip-name">{keystoneData?.name || `Keystone #${keystoneId}`}</span>
                     <span className="item-tooltip-gold">Keystone</span>
                   </div>
                   <div className="item-tooltip-desc">
@@ -300,7 +212,6 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
               )}
             </div>
 
-            {/* Dolne kółko: Drzewko podrzędne (Secondary Path) */}
             <div
               className="game-card-rune"
               onMouseEnter={() => setHoveredRune({ id: subStyleId, data: subStyleData })}
@@ -314,18 +225,13 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
                 }
                 alt={subStyleData?.name || `SubStyle #${subStyleId}`}
               />
-
               {hoveredRune?.id === subStyleId && (
                 <div className="spell-tooltip">
                   <div className="item-tooltip-header">
-                    <span className="item-tooltip-name">
-                      {subStyleData?.name || `Tree #${subStyleId}`}
-                    </span>
+                    <span className="item-tooltip-name">{subStyleData?.name || `Tree #${subStyleId}`}</span>
                     <span className="item-tooltip-gold">Secondary Tree</span>
                   </div>
-                  <div className="item-tooltip-desc">
-                    Secondary rune path selected for this match.
-                  </div>
+                  <div className="item-tooltip-desc">Secondary rune path selected for this match.</div>
                 </div>
               )}
             </div>
@@ -371,21 +277,13 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
                       (e.target as HTMLImageElement).src = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/item-icons/${itemId}.png`;
                     }}
                   />
-
                   {hoveredItem?.id === itemId && (
                     <div className="item-tooltip">
                       <div className="item-tooltip-header">
-                        <span className="item-tooltip-name">
-                          {itemData?.name || `Przedmiot #${itemId}`}
-                        </span>
+                        <span className="item-tooltip-name">{itemData?.name || `Przedmiot #${itemId}`}</span>
                       </div>
-                      <div className="item-tooltip-desc">
-                        {formatDescription(itemData?.description)}
-                      </div>
-
-                      {itemData?.gold !== undefined && (
-                        <span className="item-tooltip-gold">{itemData.gold} G</span>
-                      )}
+                      <div className="item-tooltip-desc">{formatDescription(itemData?.description)}</div>
+                      {itemData?.gold !== undefined && <span className="item-tooltip-gold">{itemData.gold} G</span>}
                     </div>
                   )}
                 </>
@@ -397,76 +295,73 @@ export const GameCard = ({ match, currentPuuid }: GameCardProps) => {
 
       <div className="game-card-divider" />
 
-      <div className="game-card-players">
-        {/* Drużyna Niebieska */}
-        <div className="game-card-team">
-          {team100.length > 0 ? (
-            team100.map((p: any, idx: number) => {
-              const name = p.gameName || p.riotIdGameName;
-              const tag = p.tagLine || 'EUNE';
-              const playerUrl = `/${encodeURIComponent(name)}/${encodeURIComponent(tag)}/${region}`;
+      {/* Zestawienie 5 linii: Niebiescy vs Rola vs Czerwoni */}
+      <div className="game-card-players-matchups">
+        {LANE_ROLES.map((role, i) => {
+          const p1 = team100[i];
+          const p2 = team200[i];
 
-              return (
+          const p1Name = p1?.gameName || p1?.riotIdGameName || 'Player';
+          const p1Tag = p1?.tagLine || 'EUNE';
+          const p1Champ = p1?.championName || 'Champion';
+          const isP1Me = p1?.puuid?.toLowerCase() === currentPuuid?.toLowerCase();
+
+          const p2Name = p2?.gameName || p2?.riotIdGameName || 'Player';
+          const p2Tag = p2?.tagLine || 'EUNE';
+          const p2Champ = p2?.championName || 'Champion';
+          const isP2Me = p2?.puuid?.toLowerCase() === currentPuuid?.toLowerCase();
+
+          return (
+            <div key={role.key} className="game-card-matchup-row">
+              {/* Lewy gracz: Awatar -> Nick */}
+              {p1 ? (
                 <Link
-                  to={playerUrl}
-                  key={p.puuid ?? idx}
-                  className="game-card-player"
-                  title={`show profile: ${name}#${tag}`}
+                  to={`/${encodeURIComponent(p1Name)}/${encodeURIComponent(p1Tag)}/${region}`}
+                  className={`game-card-player-slot ${isP1Me ? 'my-player' : ''}`}
+                  title={`${p1Name}#${p1Tag} (${p1Champ})`}
                 >
                   <img
-                    src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/${p.championName}.png`}
-                    alt={p.championName}
-                    className="game-card-player-icon"
+                    src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/${p1Champ}.png`}
+                    alt={p1Champ}
+                    className="game-card-player-avatar"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${p.championId || 1}.png`;
+                      (e.target as HTMLImageElement).src = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${p1.championId || 1}.png`;
                     }}
                   />
-                  <div className="game-card-player-info">
-                    <span className="game-card-player-champ">{p.championName}</span>
-                    <span className="game-card-player-name">{name}</span>
-                  </div>
+                  <span className="game-card-player-name">{p1Name}</span>
                 </Link>
-              );
-            })
-          ) : (
-            <div className="game-card-player-empty" />
-          )}
-        </div>
+              ) : (
+                <div className="game-card-player-slot empty" />
+              )}
 
-        {/* Drużyna Czerwona */}
-        <div className="game-card-team game-card-team-right">
-          {team200.length > 0 ? (
-            team200.map((p: any, idx: number) => {
-              const name = p.gameName || p.riotIdGameName;
-              const tag = p.tagLine || 'EUNE';
-              const playerUrl = `/${encodeURIComponent(name)}/${encodeURIComponent(tag)}/${region}`;
+              {/* Środek: Ikona roli */}
+              <div className="game-card-lane-role" title={role.label}>
+                <img src={role.icon} alt={role.label} />
+              </div>
 
-              return (
+              {/* Prawy gracz: Nick -> Awatar */}
+              {p2 ? (
                 <Link
-                  to={playerUrl}
-                  key={p.puuid ?? idx}
-                  className="game-card-player"
-                  title={`Zobacz profil ${name}#${tag}`}
+                  to={`/${encodeURIComponent(p2Name)}/${encodeURIComponent(p2Tag)}/${region}`}
+                  className={`game-card-player-slot right ${isP2Me ? 'my-player' : ''}`}
+                  title={`${p2Name}#${p2Tag} (${p2Champ})`}
                 >
-                  <div className="game-card-player-info-right">
-                    <span className="game-card-player-champ">{p.championName}</span>
-                    <span className="game-card-player-name">{name}</span>
-                  </div>
+                  <span className="game-card-player-name">{p2Name}</span>
                   <img
-                    src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/${p.championName}.png`}
-                    alt={p.championName}
-                    className="game-card-player-icon"
+                    src={`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/${p2Champ}.png`}
+                    alt={p2Champ}
+                    className="game-card-player-avatar"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${p.championId || 1}.png`;
+                      (e.target as HTMLImageElement).src = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${p2.championId || 1}.png`;
                     }}
                   />
                 </Link>
-              );
-            })
-          ) : (
-            <div className="game-card-player-empty" />
-          )}
-        </div>
+              ) : (
+                <div className="game-card-player-slot empty" />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <button className="game-card-expand-btn" aria-label="Rozwiń szczegóły">
